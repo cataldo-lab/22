@@ -1,0 +1,40 @@
+-- Crear la tabla Usuario (debe ser creada primero)
+CREATE TABLE usuario (
+	id_usuario SERIAL primary key,
+    rut VARCHAR(12),
+    nombre VARCHAR(50) ,
+    apellido VARCHAR(50),
+    email VARCHAR(255),
+    rol VARCHAR(50),
+    password VARCHAR(255) NOT null,
+    CHECK (rol IN ('alumno', 'profesor'))
+);
+
+-- Crear la tabla Asignatura (relacionada con el profesor mediante rut)
+CREATE TABLE asignatura (
+    id_asignatura SERIAL PRIMARY KEY,
+    nombre_asignatura VARCHAR(100),
+    id_profesor SERIAL,
+    semestre INTEGER,
+    ano INTEGER,
+    FOREIGN KEY (id_profesor) REFERENCES usuario (id_usuario),
+    check (semestre ==1 or semestre==2),
+    CHECK ano>2023
+);
+
+-- Crear la tabla Calificacion (relacionada con Usuario y Asignatura)
+CREATE TABLE calificacion (
+    id_nota SERIAL PRIMARY KEY,
+    nota DECIMAL(4, 2),
+    ponderacion_nota DECIMAL(5, 2),
+    categoria VARCHAR(50),
+    ponderacion_categoria DECIMAL(5, 2),
+    fecha DATE,
+    id_alumno SERIAL,
+    id_asignatura SERIAL,
+    programa_Pie BOOLEAN,
+    ponderacion_Pie DECIMAL(5,2),
+    ponderacion_escala DECIMAL(5, 2),
+    FOREIGN KEY (id_alumno) REFERENCES usuario (id_usuario),
+    FOREIGN KEY (id_asignatura) REFERENCES asignatura(id_asignatura)
+);
