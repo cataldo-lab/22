@@ -36,22 +36,33 @@ export async function login(req, res) {
 
 export async function register(req, res) {
   try {
-    const { body } = req;
+      const { body } = req;
+      console.log("Datos recibidos en register:", body);
 
-    const { error } = registerValidation.validate(body);
+      const { error } = registerValidation.validate(body, { abortEarly: false });
+      if (error) {
+          console.log("Error de validación:", error.details);
+          return handleErrorClient(
+              res,
+              400,
+              "Error de validación. Por favor, revisa los datos enviados.",
+              error.details.map((detail) => detail.message).join(", ")
+          );
+      }
 
-    if (error)
-      return handleErrorClient(res, 400, "Error de validación", error.message);
+      const [newUser, errorNewUser] = await registerService(body);
+      if (errorNewUser) {
+          console.log("Error al crear el usuario:", errorNewUser);
+          return handleErrorClient(res, 400, "Error registrando al usuario", errorNewUser);
+      }
 
-    const [newUser, errorNewUser] = await registerService(body);
-
-    if (errorNewUser) return handleErrorClient(res, 400, "Error registrando al usuario", errorNewUser);
-
-    handleSuccess(res, 201, "Usuario registrado con éxito", newUser);
+      handleSuccess(res, 201, "Usuario registrado con éxito", newUser);
   } catch (error) {
-    handleErrorServer(res, 500, error.message);
+      console.error("Error en register:", error.message, error.stack);
+      handleErrorServer(res, 500, "Error interno del servidor.");
   }
 }
+
 
 export async function logout(req, res) {
   try {

@@ -4,6 +4,8 @@ import jwt from "jsonwebtoken";
 import { AppDataSource } from "../config/configDb.js";
 import { comparePassword, encryptPassword } from "../helpers/bcrypt.helper.js";
 import { ACCESS_TOKEN_SECRET } from "../config/configEnv.js";
+import Alumno from "../entity/alumno.entity.js";
+import Profesor from "../entity/profesor.entity.js";
 
 export async function loginService(user) {
   try {
@@ -47,50 +49,55 @@ export async function loginService(user) {
   }
 }
 
-
-export async function registerService(user) {
+export async function registerService(userData) {
   try {
     const userRepository = AppDataSource.getRepository(User);
+    const alumnoRepository = AppDataSource.getRepository(Alumno);
+    const profesorRepository = AppDataSource.getRepository(Profesor);
 
-    const { nombre,apellido, rut, email } = user;
+    // Encriptar la contraseña
+    const encryptedPassword = await encryptPassword(userData.password);
 
-    const createErrorMessage = (dataInfo, message) => ({
-      dataInfo,
-      message
-    });
-
-    const existingEmailUser = await userRepository.findOne({
-      where: {
-        email,
-      },
-    });
-    
-    if (existingEmailUser) return [null, createErrorMessage("email", "Correo electrónico en uso")];
-
-    const existingRutUser = await userRepository.findOne({
-      where: {
-        rut,
-      },
-    });
-
-    if (existingRutUser) return [null, createErrorMessage("rut", "Rut ya asociado a una cuenta")];
-
+    // Crear el usuario en la tabla `User`
     const newUser = userRepository.create({
-      nombre,
-      apellido,
-      email,
-      rut,
-      password: await encryptPassword(user.password),
-      rol: "alumno",
+      ...userData,
+      password: encryptedPassword,
     });
-
     await userRepository.save(newUser);
 
-    const { password, ...dataUser } = newUser;
+    // Asociar el usuario al rol correspondiente
+    if (userData.rol === "alumno") {
+      const newAlumno = alumnoRepository.create({
+        id_usuario: newUser.id_usuario, // Asociar el ID del usuario
+        alumno_Pie: userData.alumno_Pie || false, // Campo adicional si existe
+      });
+      await alumnoRepository.save(newAlumno);
 
-    return [dataUser, null];
+      // Actualizar el `id_alumno` en la tabla `users`
+      newUser.id_alumno = newAlumno.id_alumno;
+      await userRepository.save(newUser);
+
+    } else if (userData.rol === "profesor") {
+      const newProfesor = profesorRepository.create({
+        id_usuario: newUser.id_usuario, // Asociar el ID del usuario
+        
+      });
+      await profesorRepository.save(newProfesor);
+
+      // Actualizar el `id_profesor` en la tabla `users`
+      newUser.id_profesor = newProfesor.id_profesor;
+      await userRepository.save(newUser);
+
+    } else {
+      throw new Error("Rol inválido. Solo se permiten 'alumno' o 'profesor'.");
+    }
+
+    // Retornar el usuario creado
+    return [newUser, null];
   } catch (error) {
-    console.error("Error al registrar un usuario", error);
-    return [null, "Error interno del servidor"];
+    console.error("Error en registerService:", error.message);
+    return [null, error.message];
   }
 }
+
+

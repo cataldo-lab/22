@@ -42,7 +42,7 @@ const domainEmailValidator = (value, helper) => {
 
 export const registerValidation = Joi.object({
     nombre: Joi.string()
-      .min(10)
+      .min(2)
       .max(50)
       .pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/)
       .required()
@@ -50,12 +50,12 @@ export const registerValidation = Joi.object({
         "string.empty": "El nombre no puede estar vacío.",
         "any.required": "El nombre es obligatorio.",
         "string.base": "El nombre debe ser de tipo texto.",
-        "string.min": "El nombre debe tener al menos 10 caracteres.",
+        "string.min": "El nombre debe tener al menos 2 caracteres.",
         "string.max": "El nombre  debe tener como máximo 50 caracteres.",
         "string.pattern.base": "El nombre  solo puede contener letras y espacios.",
       }),
       apellido: Joi.string()
-      .min(10)
+      .min(2)
       .max(50)
       .pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/)
       .required()
@@ -63,7 +63,7 @@ export const registerValidation = Joi.object({
         "string.empty": "El  apellido no puede estar vacío.",
         "any.required": "El apellido es obligatorio.",
         "string.base": "El apellido debe ser de tipo texto.",
-        "string.min": "El apellido debe tener al menos 15 caracteres.",
+        "string.min": "El apellido debe tener al menos 2 caracteres.",
         "string.max": "El apellido debe tener como máximo 50 caracteres.",
         "string.pattern.base": "El apellido solo puede contener letras y espacios.",
       }),
@@ -106,6 +106,15 @@ export const registerValidation = Joi.object({
         "string.max": "La contraseña debe tener como máximo 26 caracteres.",
         "string.pattern.base": "La contraseña solo puede contener letras y números.",
       }),
+    rol: Joi.string()
+      .valid("alumno", "profesor")
+      .required()
+      .messages({
+        "string.empty": "El rol no puede estar vacío.",
+        "any.required": "El rol es obligatorio.",
+        "string.base": "El rol debe ser de tipo texto.",
+        "any.only": "Rol inválido. Solo 'alumno' o 'profesor' son válidos.",
+      })
   })
     .unknown(false)
     .messages({

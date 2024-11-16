@@ -1,6 +1,6 @@
 "use strict";
 import { handleErrorClient, handleErrorServer, handleSuccess } from "../handlers/responseHandlers.js";
-import { getCalificacionesAlumnoService } from "../services/calificacionAlumno.service.js";
+
 
 
 export async function getCalificacionesAlumno(req, res) {

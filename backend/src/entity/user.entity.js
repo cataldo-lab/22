@@ -3,7 +3,7 @@ import { EntitySchema } from "typeorm";
 
 const UsuarioSchema = new EntitySchema({
   name: "Usuario",
-  tableName: "usuario",
+  tableName: "users",
   columns: {
     id_usuario: {
       type: "int",
@@ -14,15 +14,16 @@ const UsuarioSchema = new EntitySchema({
       type: "varchar",
       length: 12,
       unique: true,
+      nullable: false,
     },
     nombre: {
       type: "varchar",
-      length: 50,
+      length: 255,
       nullable: false,
     },
     apellido: {
       type: "varchar",
-      length: 50,
+      length: 255,
       nullable: false,
     },
     email: {
@@ -33,14 +34,18 @@ const UsuarioSchema = new EntitySchema({
     rol: {
       type: "varchar",
       length: 50,
-      nullable: true,
+      nullable: false,
     },
     password: {
       type: "varchar",
       length: 255,
       nullable: false,
     },
-    id_asignatura: {
+    id_alumno: {
+      type: "int",
+      nullable: true,
+    },
+    id_profesor: {
       type: "int",
       nullable: true,
     },
@@ -54,34 +59,27 @@ const UsuarioSchema = new EntitySchema({
       onUpdate: "CURRENT_TIMESTAMP",
     },
   },
+  relations: {
+    alumno: {
+      type: "one-to-one",
+      target: "Alumno",
+      joinColumn: { name: "id_alumno", referencedColumnName: "id_alumno" },
+      onDelete: "SET NULL",
+    },
+    profesor: {
+      type: "one-to-one",
+      target: "Profesor",
+      joinColumn: { name: "id_profesor", referencedColumnName: "id_profesor" },
+      onDelete: "SET NULL",
+    },
+  },
   indices: [
     {
-      name: "IDX_USUARIO_RUT",
+      name: "IDX_USER_RUT",
       columns: ["rut"],
       unique: true,
     },
   ],
-  relations: {
-    calificaciones: {
-      type: "one-to-many",
-      target: "Calificacion",
-      inverseSide: "alumno",
-      onDelete: "CASCADE",
-    },
-    profesorAsignaturas: {
-      type: "one-to-many",
-      target: "Asignatura",
-      inverseSide: "profesor",
-      onDelete: "SET NULL",
-    },
-    asignatura: {
-      type: "many-to-one",
-      target: "Asignatura",
-      joinColumn: { name: "id_asignatura", referencedColumnName: "id_asignatura" },
-      onDelete: "SET NULL",
-    },
-  },
-
 });
 
 export default UsuarioSchema;

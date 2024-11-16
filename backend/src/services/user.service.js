@@ -1,94 +1,93 @@
 "use strict";
 import User from "../entity/user.entity.js";
+import Alumno from "../entity/alumno.entity.js";
+import Profesor from "../entity/profesor.entity.js";
 import { AppDataSource } from "../config/configDb.js";
 import { encryptPassword } from "../helpers/bcrypt.helper.js";
 
-// Servicio para crear un nuevo usuario
-export async function createUserService(userData) {
+
+
+
+
+export async function getUserService(id_usuario) {
     try {
         const userRepository = AppDataSource.getRepository(User);
-        userData.password = await encryptPassword(userData.password);
 
-        // Crear el nuevo usuario
-        const newUser = userRepository.create(userData);
-        await userRepository.save(newUser);
-        return [newUser, null];
-    } catch (error) {
-        console.error("Error al crear el usuario:", error);
-        return [null, "Error interno del servidor"];
-    }
-}
-
-// Servicio para obtener un usuario por rut
-export async function getUserService(query) {
-    try {
-        const { rut } = query;
-        const userRepository = AppDataSource.getRepository(User);
-        const user = await userRepository.findOne({ where: { rut } });
-        if (!user) return [null, "Usuario no encontrado"];
-        return [user, null];
-    } catch (error) {
-        console.error("Error al obtener el usuario:", error);
-        return [null, "Error interno del servidor"];
-    }
-}
-
-// Servicio para obtener todos los usuarios con rol de alumno
-export async function getUsersService() {
-    try {
-        const userRepository = AppDataSource.getRepository(User);
-        const users = await userRepository.find({
-            where: { rol: "alumno" }, // Solo traer usuarios con rol de alumno
+        // Buscar usuario por id_usuario
+        const user = await userRepository.findOne({
+            where: { id_usuario },
         });
-        return [users, null];
+
+        // Manejar caso de usuario no encontrado
+        if (!user) {
+            return { status: 404, message: "Usuario no encontrado." };
+        }
+
+        // Retornar usuario encontrado
+        return { status: 200, message: "Usuario encontrado.", data: user };
     } catch (error) {
-        console.error("Error al obtener los usuarios:", error);
-        return [null, "Error interno del servidor"];
+        console.error("Error al obtener el usuario:", error.message);
+        return { status: 500, message: "Error interno del servidor." };
     }
 }
+
 
 // Servicio para actualizar un usuario
-export async function updateUserService(query, body) {
+export async function updateUserService(authenticatedUser, id_usuario, updateData) {
     try {
-        const { rut } = query;
         const userRepository = AppDataSource.getRepository(User);
 
-        const user = await userRepository.findOne({ where: { rut } });
-        if (!user) return [null, "Usuario no encontrado"];
-
-        // Actualizar la información del usuario
-        if (body.password) {
-            body.password = await encryptPassword(body.password);
+        const user = await userRepository.findOne({ where: { id_usuario } });
+        if (!user) {
+            return { status: 404, message: "Usuario no encontrado." };
         }
 
-        await userRepository.update({ rut: user.rut }, body);
-        const updatedUser = await userRepository.findOne({ where: { rut } });
+        // Validar permisos del usuario autenticado
+        if (authenticatedUser.rol !== "administrador" && authenticatedUser.rol !== "profesor") {
+            return { status: 403, message: "Acceso denegado." };
+        }
 
-        return [updatedUser, null];
+        // Un profesor solo puede actualizar alumnos
+        if (authenticatedUser.rol === "profesor" && user.rol !== "alumno") {
+            return { status: 403, message: "Los profesores solo pueden actualizar alumnos." };
+        }
+
+        // Encriptar nueva contraseña si se proporciona
+        if (updateData.password) {
+            updateData.password = await encryptPassword(updateData.password);
+        }
+
+        // Actualizar usuario
+        await userRepository.update({ id_usuario }, updateData);
+
+        const updatedUser = await userRepository.findOne({ where: { id_usuario } });
+        return { status: 200, message: "Usuario actualizado correctamente.", data: updatedUser };
     } catch (error) {
         console.error("Error al actualizar el usuario:", error);
-        return [null, "Error interno del servidor"];
+        return { status: 500, message: "Error interno del servidor." };
     }
 }
 
-// Servicio para eliminar un usuario (solo se elimina si es alumno)
-export async function deleteUserService(query) {
+
+export async function getUsersService(rol) {
     try {
-        const { rut } = query;
         const userRepository = AppDataSource.getRepository(User);
 
-        const user = await userRepository.findOne({ where: { rut } });
-        if (!user) return [null, "Usuario no encontrado"];
+        // Filtrar usuarios según el rol proporcionado
+        const users = await userRepository.find({
+            where: { rol },
+            relations: rol === "alumno" ? ["alumno"] : ["profesor"], // Relación dinámica
+        });
 
-        // Verificar si el usuario es un alumno antes de eliminarlo
-        if (user.rol !== "alumno") {
-            return [null, "Solo se pueden eliminar usuarios con rol de alumno"];
+        // Si no se encuentran usuarios con el rol especificado
+        if (users.length === 0) {
+            return { status: 404, message: `No se encontraron usuarios con el rol de ${rol}.` };
         }
 
-        await userRepository.remove(user);
-        return [user, null];
+        // Retornar los datos de los usuarios encontrados
+        return { status: 200, message: `${rol === "alumno" ? "Alumnos" : "Profesores"} encontrados.`, data: users };
     } catch (error) {
-        console.error("Error al eliminar el usuario:", error);
-        return [null, "Error interno del servidor"];
+        console.error("Error en getUsersService:", error.message);
+        return { status: 500, message: "Error interno del servidor." };
     }
 }
