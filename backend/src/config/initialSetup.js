@@ -1,125 +1,215 @@
 "use strict";
 import User from "../entity/user.entity.js";
 import Asignatura from "../entity/asignatura.entity.js";
+import Alumno from "../entity/alumno.entity.js";
+import Profesor from "../entity/profesor.entity.js";
+import Curso from "../entity/curso.entity.js";
 import { AppDataSource } from "./configDb.js";
 import { encryptPassword } from "../helpers/bcrypt.helper.js";
 
 async function createUsers() {
-  try {
-    const userRepository = AppDataSource.getRepository(User);
+    try {
+        const userRepository = AppDataSource.getRepository(User);
+        const alumnoRepository = AppDataSource.getRepository(Alumno);
+        const profesorRepository = AppDataSource.getRepository(Profesor);
 
-    // Verificar si ya existen usuarios en la base de datos
-    const count = await userRepository.count();
-    if (count > 0) {
-      console.log("ℹ️ Usuarios ya existen en la base de datos. Se omite la creación inicial.");
-      return;
+        // Check if users already exist
+        const userCount = await userRepository.count();
+        if (userCount > 0) {
+            console.log("ℹ️ Usuarios ya existen en la base de datos. Se omite la creación inicial.");
+            return;
+        }
+
+        // Sample users
+        const users = [
+            {
+                rut: "11111111-1",
+                nombre: "Admin",
+                apellido: "Administrador",
+                email: "admin@gmail.cl",
+                password: await encryptPassword("admin123"),
+                rol: "administrador",
+            },
+            {
+                rut: "12222222-2",
+                nombre: "Profesor1",
+                apellido: "Gonzalez",
+                email: "profesor1@gmail.cl",
+                password: await encryptPassword("profesor123"),
+                rol: "profesor",
+            },
+            {
+                rut: "13333333-3",
+                nombre: "Alumno1",
+                apellido: "Perez",
+                email: "alumno1@gmail.cl",
+                password: await encryptPassword("alumno123"),
+                rol: "alumno",
+            },
+            {
+                rut: "14444444-4",
+                nombre: "Profesor2",
+                apellido: "Lopez",
+                email: "profesor2@gmail.cl",
+                password: await encryptPassword("profesor456"),
+                rol: "profesor",
+            },
+            {
+                rut: "15555555-5",
+                nombre: "Alumno2",
+                apellido: "Sanchez",
+                email: "alumno2@gmail.cl",
+                password: await encryptPassword("alumno456"),
+                rol: "alumno",
+            },
+            {
+              rut: "16666666-6",
+              nombre: "Alumno3",
+              apellido: "Ramirez",
+              email: "alumno3@gmail.cl",
+              password: await encryptPassword("alumno789"),
+              rol: "alumno",
+          },
+          {
+              rut: "17777777-7",
+              nombre: "Alumno4",
+              apellido: "Hernandez",
+              email: "alumno4@gmail.cl",
+              password: await encryptPassword("alumno321"),
+              rol: "alumno",
+          },
+          {
+              rut: "18888888-8",
+              nombre: "Alumno5",
+              apellido: "Castro",
+              email: "alumno5@gmail.cl",
+              password: await encryptPassword("alumno654"),
+              rol: "alumno",
+          },
+          {
+              rut: "19999999-9",
+              nombre: "Alumno6",
+              apellido: "Morales",
+              email: "alumno6@gmail.cl",
+              password: await encryptPassword("alumno987"),
+              rol: "alumno",
+          },
+        ];
+
+        for (const userData of users) {
+            const newUser = await userRepository.save(userRepository.create(userData));
+
+            if (userData.rol === "alumno") {
+                const newAlumno = await alumnoRepository.save(alumnoRepository.create({ usuario: newUser }));
+                newUser.id_alumno = newAlumno.id_alumno;
+                await userRepository.save(newUser);
+            } else if (userData.rol === "profesor") {
+                const newProfesor = await profesorRepository.save(profesorRepository.create({ usuario: newUser }));
+                newUser.id_profesor = newProfesor.id_profesor;
+                await userRepository.save(newUser);
+            }
+        }
+
+        console.log("✅ Usuarios creados exitosamente.");
+    } catch (error) {
+        console.error("❌ Error al crear usuarios:", error.message);
     }
-
-    // Crear usuarios iniciales con rut primero (clave primaria)
-    await Promise.all([
-      userRepository.save(
-        userRepository.create({
-          rut: "21.308.770-3",
-          nombre: "Diego Alexis",
-          apellido: "Salazar Jara",
-          email: "administrador2024@gmail.cl",
-          password: await encryptPassword("admin1234"),
-          rol: "administrador",
-          
-        }),
-      ),
-      userRepository.save(
-        userRepository.create({
-          rut: "22.111.333-4",
-          nombre: "María Fernanda",
-          apellido: "Gómez López",
-          email: "profesora2024@gmail.cl",
-          password: await encryptPassword("profesor1234"),
-          rol: "profesor",
-          
-        }),
-      ),
-      userRepository.save(
-        userRepository.create({
-          rut: "21.151.897-9",
-          nombre: "Diego Sebastián",
-          apellido: "Ampuero Belmar",
-          email: "usuario1.2024@gmail.cl",
-          password: await encryptPassword("user1234"),
-          rol: "alumno",
-          
-        })
-      ),
-      userRepository.save(
-        userRepository.create({
-          rut: "20.630.735-8",
-          nombre: "Alexander Benjamín Marcelo",
-          apellido: "Carrasco Fuentes",
-          email: "usuario2.2024@gmail.cl",
-          password: await encryptPassword("user1234"),
-          rol: "alumno",
-          
-        }),
-      ),
-      userRepository.save(
-        userRepository.create({
-          rut: "abba",
-          nombre: "Alexander Benjamín Marcelo",
-          apellido: "Carrasco Fuentes",
-          email: "usuario2.2024@gmail.cl",
-          password: await encryptPassword("user1234"),
-          rol: "alumno",
-          
-        }),
-      ),
-    
-    ]);
-    console.log("✅ Usuarios creados exitosamente");
-  } catch (error) {
-    console.error("❌ Error al crear usuarios:", error);
-  }
 }
 
-
-
 async function createAsignaturas() {
+    try {
+        const asignaturaRepository = AppDataSource.getRepository(Asignatura);
+        const profesorRepository = AppDataSource.getRepository(Profesor);
+
+        const asignaturaCount = await asignaturaRepository.count();
+        if (asignaturaCount > 0) {
+            console.log("ℹ️ Asignaturas ya existen en la base de datos.");
+            return;
+        }
+
+        // Retrieve all professors from the database
+        const profesores = await profesorRepository.find();
+
+        if (profesores.length === 0) {
+            console.log("❌ No se encontraron profesores para asignar a las asignaturas.");
+            return;
+        }
+
+        // Assign subjects to professors
+        const asignaturas = [
+            { nombre_asignatura: "Matemáticas", ano: 2024, semestre: 1, profesor: profesores[0] },
+            { nombre_asignatura: "Física", ano: 2024, semestre: 2, profesor: profesores[0] },
+            { nombre_asignatura: "Química", ano: 2024, semestre: 1, profesor: profesores[1] || profesores[0] },
+        ];
+
+        for (const asignaturaData of asignaturas) {
+            const newAsignatura = asignaturaRepository.create(asignaturaData);
+            await asignaturaRepository.save(newAsignatura);
+        }
+
+        console.log("✅ Asignaturas creadas exitosamente y asociadas a profesores.");
+    } catch (error) {
+        console.error("❌ Error al crear asignaturas:", error.message);
+    }
+}
+
+async function createCursos() {
   try {
-    const asignaturaRepository = AppDataSource.getRepository(Asignatura);
+      const cursoRepository = AppDataSource.getRepository(Curso);
+      const alumnoRepository = AppDataSource.getRepository(Alumno);
 
-  
-  const count = await asignaturaRepository.count();
-  if (count > 0) {
-    console.log("ℹ️ Asignaturas ya existen en la base de datos.");
-    return;
-  }
+      const cursoCount = await cursoRepository.count();
+      if (cursoCount > 0) {
+          console.log("ℹ️ Cursos ya existen en la base de datos.");
+          return;
+      }
 
-     await asignaturaRepository.save(
-      asignaturaRepository.create({
-        nombre_asignatura: "Matemáticas I",
-        semestre:1,
-        ano: "2024",
-      })
-    );
+      const cursos = [
+          {
+              nivel_curso: 1,
+              seccion_curso: "A",
+              cupos_maximos: 30,
+              cupos_reservados: 5,
+              cupos_disponibles: 25,
+              ano: 2024,
+          },
+          {
+              nivel_curso: 2,
+              seccion_curso: "B",
+              cupos_maximos: 35,
+              cupos_reservados: 10,
+              cupos_disponibles: 25,
+              ano: 2024,
+          },
+      ];
 
-    await asignaturaRepository.save(
-      asignaturaRepository.create({
-        nombre_asignatura: "Física II",
-        semestre:2,
-        ano: "2024",
-      })
-    );
+      // Create courses and associate students
+      for (const cursoData of cursos) {
+          const newCurso = await cursoRepository.save(cursoRepository.create(cursoData));
 
+          // Assign a few students to the newly created course
+          const alumnos = await alumnoRepository.find({
+              where: { id_curso: null }, // Find students not already assigned to a course
+              take: 5, // Assign up to 5 students per course
+          });
 
+          for (const alumno of alumnos) {
+              alumno.id_curso = newCurso.id_curso;
+              await alumnoRepository.save(alumno);
+          }
 
-    console.log("✅ Asignaturas y asociaciones de alumnos creadas exitosamente");
+          console.log(`✅ Curso ${newCurso.nivel_curso}-${newCurso.seccion_curso} creado y n° ${alumnos.length} alums`);
+      }
+
   } catch (error) {
-    console.error("❌ Error al crear asignaturas o asociaciones:", error);
+      console.error("❌ Error al crear cursos:", error.message);
   }
 }
 
 async function initialSetup() {
-  await createUsers();
-  await createAsignaturas();
+    await createUsers();
+    await createAsignaturas();
+    await createCursos();
 }
 
 export { initialSetup };
