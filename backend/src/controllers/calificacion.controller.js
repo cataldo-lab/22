@@ -11,22 +11,34 @@ import { handleErrorClient, handleErrorServer, handleSuccess } from "../handlers
 // Crear una calificaci      n
 export async function createCalificacion(req, res) {
     try {
-        const { id_alumno, id_asignatura, programa_Pie, puntaje_alumno } = req.body; 
+        // Extracción de datos del cuerpo de la solicitud
+        const { id_alumno, id_asignatura, puntaje_alumno } = req.body;
 
-        if (!id_alumno || !id_asignatura || programa_Pie === undefined || puntaje_alumno === undefined) {
-            return handleErrorClient(res, 400, "Faltan datos requeridos para crear la calificaci      n.");
+        // Validación de entrada
+        if (!id_alumno || !id_asignatura || puntaje_alumno === undefined) {
+            return handleErrorClient(
+                res,
+                400,
+                "Faltan datos requeridos: id_alumno, id_asignatura o puntaje_alumno."
+            );
         }
 
-        const [createdCalificacion, error] = await createCalificacionService({
+        // Llamar al servicio para crear la calificación
+        const [nuevaCalificacion, error] = await createCalificacionService({
             id_alumno,
             id_asignatura,
-            programa_Pie,
             puntaje_alumno,
         });
-        if (error){ return handleErrorClient(res, 400, error);}
-        
-        handleSuccess(res, 201, "Calificaci      n creada exitosamente", createdCalificacion);
+
+        if (error) {
+            return handleErrorClient(res, 400, error);
+        }
+
+        // Respuesta exitosa
+        handleSuccess(res, 201, "Calificación creada exitosamente", nuevaCalificacion);
     } catch (error) {
+        // Manejo de errores de servidor
+        console.error("Error en createCalificacion:", error.message);
         handleErrorServer(res, 500, error.message);
     }
 }
@@ -34,23 +46,39 @@ export async function createCalificacion(req, res) {
 //No tocar
 export async function updateCalificacion(req, res) {
     try {
+        // Extraer el id_nota de los parámetros de la solicitud
         const { id_nota } = req.params;
-        const { id_alumno, id_asignatura, programa_Pie, puntaje_alumno } = req.body;
 
-        console.log("Datos recibidos:", { id_nota, id_alumno, id_asignatura, programa_Pie, puntaje_alumno });
+        // Extraer el cuerpo de la solicitud
+        const { id_alumno, id_asignatura, puntaje_alumno } = req.body;
 
-        const [updatedCalificacion, error] = await updateCalificacionService(
+        // Validar que los datos necesarios estén presentes
+        if (!id_nota || !id_alumno || !id_asignatura || puntaje_alumno === undefined) {
+            return handleErrorClient(
+                res,
+                400,
+                "Faltan datos requeridos: id_nota, id_alumno, id_asignatura o puntaje_alumno."
+            );
+        }
+
+        // Llamar al servicio para actualizar la calificación
+        const [calificacionActualizada, error] = await updateCalificacionService(
             id_nota,
             id_alumno,
             id_asignatura,
-            programa_Pie === true,  // Aseguramos que sea booleano
-            parseFloat(puntaje_alumno)  // Convertimos puntaje_alumno a n      mero
+            puntaje_alumno
         );
 
-        if (error) return handleErrorClient(res, 400, error);
+        // Manejar errores del servicio
+        if (error) {
+            return handleErrorClient(res, 400, error);
+        }
 
-        handleSuccess(res, 200, "Calificaci      n actualizada exitosamente", updatedCalificacion);
+        // Respuesta exitosa
+        handleSuccess(res, 200, "Calificación actualizada exitosamente", calificacionActualizada);
     } catch (error) {
+        // Manejo de errores del servidor
+        console.error("Error en updateCalificacion:", error.message);
         handleErrorServer(res, 500, error.message);
     }
 }
@@ -58,14 +86,27 @@ export async function updateCalificacion(req, res) {
 
 export async function deleteCalificacion(req, res) {
     try {
+        
         const { id_nota } = req.params;
 
-        const [deletedCalificacion, error] = await deleteCalificacionService(id_nota);
+        
+        if (!id_nota) {
+            return handleErrorClient(res, 400, "El ID de la calificación es requerido.");
+        }
 
-        if (error) return handleErrorClient(res, 404, error);
+        
+        const [calificacionEliminada, error] = await deleteCalificacionService(id_nota);
 
-        handleSuccess(res, 200, "Calificaci      n eliminada exitosamente", deletedCalificacion);
+        
+        if (error) {
+            return handleErrorClient(res, 404, error);
+        }
+
+       
+        handleSuccess(res, 200, "Calificación eliminada exitosamente", calificacionEliminada);
     } catch (error) {
+        
+        console.error("Error en deleteCalificacion:", error.message);
         handleErrorServer(res, 500, error.message);
     }
 }

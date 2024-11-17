@@ -3,36 +3,34 @@ import { getRepository } from "typeorm";
 import Alumno from "../entity/alumno.entity.js";
 import Asignatura from "../entity/asignatura.entity.js";
 import Evaluado from "../entity/evaluado.entity.js";
+import { AppDataSource } from "../config/configDb.js";
 
-const calcularNota = (puntaje_alumno, tipo_evaluacion) => {
-    const puntaje_total = 70;
-    const ponderacion = tipo_evaluacion === "PIE" ? 0.5 : 0.6;
-    const porcentaje_logrado = (puntaje_alumno / puntaje_total) * 100;
-    const nota = ((porcentaje_logrado - (ponderacion * 10)) / (100 - (ponderacion * 10))) * 6 + 1;
-    return parseFloat(nota.toFixed(2));
-};
 
-const obtenerEntidadPorId = async (repository, id, nombreEntidad) => {
-    const entidad = await repository.findOne(id);
-    if (!entidad) throw new Error(`${nombreEntidad} no encontrado.`);
-    return entidad;
-};
 
-export async function createCalificacionService({ id_alumno, id_asignatura, tipo_evaluacion, puntaje_alumno }) {
+
+export async function createCalificacionService({ id_alumno, id_asignatura, puntaje_alumno }) {
     try {
         const alumnoRepository = AppDataSource.getRepository(Alumno);
         const asignaturaRepository = AppDataSource.getRepository(Asignatura);
         const evaluadoRepository = AppDataSource.getRepository(Evaluado);
 
-        // Validar existencia de alumno y asignatura
+        // Validar existencia de alumno
         const alumno = await alumnoRepository.findOneBy({ id_alumno });
         if (!alumno) throw new Error("Alumno no encontrado.");
 
+        // Validar si pertenece al programa PIE
+        const tipo_evaluacion = alumno.alumno_Pie ? "PIE" : "ESTÁNDAR";
+
+        // Validar existencia de asignatura
         const asignatura = await asignaturaRepository.findOneBy({ id_asignatura });
         if (!asignatura) throw new Error("Asignatura no encontrada.");
 
         // Calcular la nota
-        const nota = calcularNota(puntaje_alumno, tipo_evaluacion);
+        const puntaje_total = 70;
+        const ponderacion = tipo_evaluacion === "PIE" ? 0.5 : 0.6;
+        const porcentaje_logrado = (puntaje_alumno / puntaje_total) * 100;
+        let nota = ((porcentaje_logrado - (ponderacion * 10)) / (100 - (ponderacion * 10))) * 6 + 1;
+        nota = parseFloat(nota.toFixed(2));
 
         // Crear y guardar la calificación
         const nuevaCalificacion = evaluadoRepository.create({
@@ -70,17 +68,35 @@ export async function getCalificacionesByAlumnoIdService(id_alumno) {
     }
 }
 
-export async function updateCalificacionService(id_nota, id_alumno, id_asignatura, tipo_evaluacion, puntaje_alumno) {
+export async function updateCalificacionService(id_nota, id_alumno, id_asignatura, puntaje_alumno) {
     try {
-        const evaluadoRepository = getRepository(Evaluado);
+        const alumnoRepository = AppDataSource.getRepository(Alumno);
+        const asignaturaRepository = AppDataSource.getRepository(Asignatura);
+        const evaluadoRepository = AppDataSource.getRepository(Evaluado);
 
-        // Buscar la calificación existente
-        const calificacion = await obtenerEntidadPorId(evaluadoRepository, id_nota, "Calificación");
+        // Validar existencia de la calificación
+        const calificacion = await evaluadoRepository.findOneBy({ id_nota });
+        if (!calificacion) throw new Error("Calificación no encontrada.");
 
-        // Calcular nueva nota
-        const nuevaNota = calcularNota(puntaje_alumno, tipo_evaluacion);
+        // Validar existencia del alumno
+        const alumno = await alumnoRepository.findOneBy({ id_alumno });
+        if (!alumno) throw new Error("Alumno no encontrado.");
 
-        // Actualizar la calificación
+        // Determinar si pertenece al programa PIE
+        const tipo_evaluacion = alumno.alumno_Pie ? "PIE" : "ESTÁNDAR";
+
+        // Validar existencia de la asignatura
+        const asignatura = await asignaturaRepository.findOneBy({ id_asignatura });
+        if (!asignatura) throw new Error("Asignatura no encontrada.");
+
+        // Recalcular la nota
+        const puntaje_total = 70;
+        const ponderacion = tipo_evaluacion === "PIE" ? 0.5 : 0.6;
+        const porcentaje_logrado = (puntaje_alumno / puntaje_total) * 100;
+        let nuevaNota = ((porcentaje_logrado - (ponderacion * 10)) / (100 - (ponderacion * 10))) * 6 + 1;
+        nuevaNota = parseFloat(nuevaNota.toFixed(2));
+
+        // Actualizar la calificación existente
         Object.assign(calificacion, {
             id_alumno,
             id_asignatura,
@@ -99,12 +115,16 @@ export async function updateCalificacionService(id_nota, id_alumno, id_asignatur
     }
 }
 
+
 export async function deleteCalificacionService(id_nota) {
     try {
-        const evaluadoRepository = getRepository(Evaluado);
+        const evaluadoRepository = AppDataSource.getRepository(Evaluado);
 
-        // Buscar la calificación
-        const calificacion = await obtenerEntidadPorId(evaluadoRepository, id_nota, "Calificación");
+        // Buscar la calificación por su ID
+        const calificacion = await evaluadoRepository.findOneBy({ id_nota });
+        if (!calificacion) {
+            return [null, "Calificación no encontrada."];
+        }
 
         // Eliminar la calificación
         await evaluadoRepository.remove(calificacion);
@@ -112,6 +132,6 @@ export async function deleteCalificacionService(id_nota) {
         return [calificacion, null];
     } catch (error) {
         console.error("Error al eliminar la calificación:", error.message);
-        return [null, error.message];
+        return [null, "Error al eliminar la calificación."];
     }
 }
