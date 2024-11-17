@@ -1,90 +1,88 @@
-import { 
-    createCalificacionService, 
-    deleteCalificacionService ,
-    getSelfCalificacionesService, 
-    updateCalificacionService, 
-    
+
+"use strict";
+import {
+    createCalificacionService,
+    deleteCalificacionService,
+    getCalificacionesByAlumnoIdService,
+    updateCalificacionService,
 } from "../services/calificacion.service.js";
-import { handleErrorClient, handleErrorServer } from "../handlers/responseHandlers.js";
+import { handleErrorClient, handleErrorServer, handleSuccess } from "../handlers/responseHandlers.js";
 
-// Obtener las calificaciones del alumno autenticado
-export async function getSelfCalificaciones(req, res) {
-    try {
-        const id_alumno = req.user.id; // ID del alumno autenticado
-        const [calificaciones, error] = await getSelfCalificacionesService(id_alumno);
-
-        if (error) {
-            return handleErrorClient(res, 404, "No se encontraron calificaciones.");
-        }
-
-        return res.status(200).json({
-            status: "Success",
-            message: "Calificaciones obtenidas exitosamente.",
-            data: calificaciones,
-        });
-    } catch (error) {
-        console.error("Error en getSelfCalificaciones:", error.message);
-        return handleErrorServer(res, 500, "Error interno del servidor.");
-    }
-}
-
-// Crear una nueva calificación
+// Crear una calificaci      n
 export async function createCalificacion(req, res) {
     try {
-        const [calificacion, error] = await createCalificacionService(req.body);
+        const { id_alumno, id_asignatura, programa_Pie, puntaje_alumno } = req.body; 
 
-        if (error) {
-            return handleErrorClient(res, 400, "Error al crear la calificación.", error);
+        if (!id_alumno || !id_asignatura || programa_Pie === undefined || puntaje_alumno === undefined) {
+            return handleErrorClient(res, 400, "Faltan datos requeridos para crear la calificaci      n.");
         }
 
-        return res.status(201).json({
-            status: "Success",
-            message: "Calificación creada exitosamente.",
-            data: calificacion,
+        const [createdCalificacion, error] = await createCalificacionService({
+            id_alumno,
+            id_asignatura,
+            programa_Pie,
+            puntaje_alumno,
         });
+        if (error){ return handleErrorClient(res, 400, error);}
+        
+        handleSuccess(res, 201, "Calificaci      n creada exitosamente", createdCalificacion);
     } catch (error) {
-        console.error("Error en createCalificacion:", error.message);
-        return handleErrorServer(res, 500, "Error interno del servidor.");
+        handleErrorServer(res, 500, error.message);
     }
 }
 
-// Actualizar una calificación existente
+//No tocar
 export async function updateCalificacion(req, res) {
     try {
         const { id_nota } = req.params;
-        const [calificacion, error] = await updateCalificacionService(id_nota, req.body);
+        const { id_alumno, id_asignatura, programa_Pie, puntaje_alumno } = req.body;
 
-        if (error) {
-            return handleErrorClient(res, 404, "No se encontró la calificación a actualizar.", error);
-        }
+        console.log("Datos recibidos:", { id_nota, id_alumno, id_asignatura, programa_Pie, puntaje_alumno });
 
-        return res.status(200).json({
-            status: "Success",
-            message: "Calificación actualizada exitosamente.",
-            data: calificacion,
-        });
+        const [updatedCalificacion, error] = await updateCalificacionService(
+            id_nota,
+            id_alumno,
+            id_asignatura,
+            programa_Pie === true,  // Aseguramos que sea booleano
+            parseFloat(puntaje_alumno)  // Convertimos puntaje_alumno a n      mero
+        );
+
+        if (error) return handleErrorClient(res, 400, error);
+
+        handleSuccess(res, 200, "Calificaci      n actualizada exitosamente", updatedCalificacion);
     } catch (error) {
-        console.error("Error en updateCalificacion:", error.message);
-        return handleErrorServer(res, 500, "Error interno del servidor.");
+        handleErrorServer(res, 500, error.message);
     }
 }
 
-// Eliminar una calificación existente
+
 export async function deleteCalificacion(req, res) {
     try {
         const { id_nota } = req.params;
-        const [deleted, error] = await deleteCalificacionService(id_nota);
 
-        if (error) {
-            return handleErrorClient(res, 404, "No se encontró la calificación a eliminar.", error);
+        const [deletedCalificacion, error] = await deleteCalificacionService(id_nota);
+
+        if (error) return handleErrorClient(res, 404, error);
+
+        handleSuccess(res, 200, "Calificaci      n eliminada exitosamente", deletedCalificacion);
+    } catch (error) {
+        handleErrorServer(res, 500, error.message);
+    }
+}
+
+export async function getCalificacionesByAlumnoId(req, res) {
+    try {
+        const { id_alumno } = req.params;  // Cambiado de req.query a req.params
+
+        if (!id_alumno) {
+            return handleErrorClient(res, 400, "El ID del alumno es requerido.");
         }
 
-        return res.status(200).json({
-            status: "Success",
-            message: "Calificación eliminada exitosamente.",
-        });
+        const [calificaciones, errorCalificacion] = await getCalificacionesByAlumnoIdService(id_alumno);
+        if (errorCalificacion) return handleErrorClient(res, 404, errorCalificacion);
+
+        handleSuccess(res, 200, "Calificaciones obtenidas exitosamente", calificaciones);
     } catch (error) {
-        console.error("Error en deleteCalificacion:", error.message);
-        return handleErrorServer(res, 500, "Error interno del servidor.");
+        handleErrorServer(res, 500, error.message);
     }
 }

@@ -1,74 +1,117 @@
-import { AppDataSource } from "../config/configDb.js";
+"use strict";
+import { getRepository } from "typeorm";
+import Alumno from "../entity/alumno.entity.js";
+import Asignatura from "../entity/asignatura.entity.js";
 import Evaluado from "../entity/evaluado.entity.js";
 
-// Obtener calificaciones propias del alumno
-export async function getSelfCalificacionesService(id_alumno) {
+const calcularNota = (puntaje_alumno, tipo_evaluacion) => {
+    const puntaje_total = 70;
+    const ponderacion = tipo_evaluacion === "PIE" ? 0.5 : 0.6;
+    const porcentaje_logrado = (puntaje_alumno / puntaje_total) * 100;
+    const nota = ((porcentaje_logrado - (ponderacion * 10)) / (100 - (ponderacion * 10))) * 6 + 1;
+    return parseFloat(nota.toFixed(2));
+};
+
+const obtenerEntidadPorId = async (repository, id, nombreEntidad) => {
+    const entidad = await repository.findOne(id);
+    if (!entidad) throw new Error(`${nombreEntidad} no encontrado.`);
+    return entidad;
+};
+
+export async function createCalificacionService({ id_alumno, id_asignatura, tipo_evaluacion, puntaje_alumno }) {
+    try {
+        const alumnoRepository = AppDataSource.getRepository(Alumno);
+        const asignaturaRepository = AppDataSource.getRepository(Asignatura);
+        const evaluadoRepository = AppDataSource.getRepository(Evaluado);
+
+        // Validar existencia de alumno y asignatura
+        const alumno = await alumnoRepository.findOneBy({ id_alumno });
+        if (!alumno) throw new Error("Alumno no encontrado.");
+
+        const asignatura = await asignaturaRepository.findOneBy({ id_asignatura });
+        if (!asignatura) throw new Error("Asignatura no encontrada.");
+
+        // Calcular la nota
+        const nota = calcularNota(puntaje_alumno, tipo_evaluacion);
+
+        // Crear y guardar la calificación
+        const nuevaCalificacion = evaluadoRepository.create({
+            id_alumno,
+            id_asignatura,
+            tipo_evaluacion,
+            puntaje_alumno,
+            nota,
+            fecha: new Date(),
+        });
+        await evaluadoRepository.save(nuevaCalificacion);
+
+        return [nuevaCalificacion, null];
+    } catch (error) {
+        console.error("Error al crear la calificación:", error.message);
+        return [null, error.message];
+    }
+}
+
+export async function getCalificacionesByAlumnoIdService(id_alumno) {
     try {
         const evaluadoRepository = AppDataSource.getRepository(Evaluado);
 
         const calificaciones = await evaluadoRepository.find({
             where: { id_alumno },
-            relations: ["asignatura"], // Incluir datos de asignatura si es necesario
+            relations: ["asignatura", "alumno"],
         });
 
-        if (calificaciones.length === 0) {
-            return [null, "No se encontraron calificaciones para este alumno."];
-        }
+        if (calificaciones.length === 0) throw new Error("No se encontraron calificaciones para este alumno.");
 
         return [calificaciones, null];
     } catch (error) {
-        console.error("Error en getSelfCalificacionesService:", error.message);
-        return [null, "Error al obtener las calificaciones."];
+        console.error("Error al obtener las calificaciones:", error.message);
+        return [null, error.message];
     }
 }
 
-// Crear una nueva calificación
-export async function createCalificacionService(data) {
+export async function updateCalificacionService(id_nota, id_alumno, id_asignatura, tipo_evaluacion, puntaje_alumno) {
     try {
-        const evaluadoRepository = AppDataSource.getRepository(Evaluado);
-        const nuevaCalificacion = evaluadoRepository.create(data);
-        await evaluadoRepository.save(nuevaCalificacion);
-        return [nuevaCalificacion, null];
-    } catch (error) {
-        console.error("Error en createCalificacionService:", error.message);
-        return [null, "Error al crear la calificación."];
-    }
-}
+        const evaluadoRepository = getRepository(Evaluado);
 
-// Actualizar una calificación existente
-export async function updateCalificacionService(id_nota, data) {
-    try {
-        const evaluadoRepository = AppDataSource.getRepository(Evaluado);
-        const calificacion = await evaluadoRepository.findOne({ where: { id_nota } });
+        // Buscar la calificación existente
+        const calificacion = await obtenerEntidadPorId(evaluadoRepository, id_nota, "Calificación");
 
-        if (!calificacion) {
-            return [null, "La calificación no existe."];
-        }
+        // Calcular nueva nota
+        const nuevaNota = calcularNota(puntaje_alumno, tipo_evaluacion);
 
-        evaluadoRepository.merge(calificacion, data);
+        // Actualizar la calificación
+        Object.assign(calificacion, {
+            id_alumno,
+            id_asignatura,
+            tipo_evaluacion,
+            puntaje_alumno,
+            nota: nuevaNota,
+            updatedAt: new Date(),
+        });
+
         await evaluadoRepository.save(calificacion);
 
         return [calificacion, null];
     } catch (error) {
-        console.error("Error en updateCalificacionService:", error.message);
-        return [null, "Error al actualizar la calificación."];
+        console.error("Error al actualizar la calificación:", error.message);
+        return [null, error.message];
     }
 }
 
-// Eliminar una calificación existente
 export async function deleteCalificacionService(id_nota) {
     try {
-        const evaluadoRepository = AppDataSource.getRepository(Evaluado);
-        const calificacion = await evaluadoRepository.findOne({ where: { id_nota } });
+        const evaluadoRepository = getRepository(Evaluado);
 
-        if (!calificacion) {
-            return [null, "La calificación no existe."];
-        }
+        // Buscar la calificación
+        const calificacion = await obtenerEntidadPorId(evaluadoRepository, id_nota, "Calificación");
 
+        // Eliminar la calificación
         await evaluadoRepository.remove(calificacion);
-        return [true, null];
+
+        return [calificacion, null];
     } catch (error) {
-        console.error("Error en deleteCalificacionService:", error.message);
-        return [null, "Error al eliminar la calificación."];
+        console.error("Error al eliminar la calificación:", error.message);
+        return [null, error.message];
     }
 }
