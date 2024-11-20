@@ -7,7 +7,7 @@ import '@styles/form.css';
 const Login = () => {
     const navigate = useNavigate();
     const {
-        errorEmail,
+        errorRut,
         errorPassword,
         errorData,
         handleInputChange
@@ -32,19 +32,17 @@ const Login = () => {
                 title="Iniciar sesión"
                 fields={[
                     {
-                        label: "Correo electrónico",
-                        name: "email",
-                        placeholder: "example@gmail.cl",
+                        label: "RUT",
+                        name: "rut",
+                        placeholder: "xxxxxxxx-x",
                         fieldType: 'input',
-                        type: "email",
+                        type: "text",
+                        patternMessage: "Debe ser xx.xxx.xxx-x o xxxxxxxx-x",
                         required: true,
-                        minLength: 15,
-                        maxLength: 30,
-                        errorMessageData: errorEmail,
-                        validate: {
-                            emailDomain: (value) => value.endsWith('@gmail.cl') || 'El correo debe terminar en @gmail.cl'
-                        },
-                        onChange: (e) => handleInputChange('email', e.target.value),
+                        minLength: 9,
+                        maxLength: 12,
+                        errorMessageData: errorRut,
+                        onChange: (e) => handleInputChange('rut', e.target.value),
                     },
                     {
                         label: "Contraseña",

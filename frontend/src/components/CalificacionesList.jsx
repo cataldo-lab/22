@@ -1,4 +1,4 @@
-import React from "react";
+//import React from "react";
 import { Table, TableBody, TableCell, TableHead, TableRow, Button } from "@mui/material";
 
 const CalificacionesList = ({ calificaciones }) => {

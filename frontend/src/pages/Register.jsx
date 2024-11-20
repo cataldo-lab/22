@@ -39,13 +39,25 @@ const patternRut = new RegExp(/^(?:(?:[1-9]\d{0}|[1-2]\d{1})(\.\d{3}){2}|[1-9]\d
 				title="Crea tu cuenta"
 				fields={[
 					{
-						label: "Nombre completo",
-						name: "nombreCompleto",
-						placeholder: "Diego Alexis Salazar Jara",
+						label: "Nombre",
+						name: "nombre",
+						placeholder: "Benjamin Eduardo",
                         fieldType: 'input',
 						type: "text",
 						required: true,
-						minLength: 15,
+						minLength: 3,
+						maxLength: 50,
+                        pattern: /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/,
+						patternMessage: "Debe contener solo letras y espacios",
+					},
+                    {
+						label: "Apellido",
+						name: "apellido",
+						placeholder: "Lopez Perez",
+                        fieldType: 'input',
+						type: "text",
+						required: true,
+						minLength: 3,
 						maxLength: 50,
                         pattern: /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/,
 						patternMessage: "Debe contener solo letras y espacios",
@@ -68,7 +80,7 @@ const patternRut = new RegExp(/^(?:(?:[1-9]\d{0}|[1-2]\d{1})(\.\d{3}){2}|[1-9]\d
                     {
 						label: "Rut",
                         name: "rut",
-                        placeholder: "23.770.330-1",
+                        placeholder: "11.111.111-1",
                         fieldType: 'input',
                         type: "text",
 						minLength: 9,

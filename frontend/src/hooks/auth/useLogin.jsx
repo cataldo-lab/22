@@ -1,18 +1,18 @@
 import { useState, useEffect } from 'react';
 
 const useLogin = () => {
-    const [errorEmail, setErrorEmail] = useState('');
+    const [errorRut, setErrorRut] = useState('');
     const [errorPassword, setErrorPassword] = useState('');
-    const [inputData, setInputData] = useState({ email: '', password: '' });
+    const [inputData, setInputData] = useState({ rut: '', password: '' });
 
     useEffect(() => {
-        if (inputData.email) setErrorEmail('');
+        if (inputData.rut) setErrorRut('');
         if (inputData.password) setErrorPassword('');
-    }, [inputData.email, inputData.password]);
+    }, [inputData.rut, inputData.password]);
 
     const errorData = (dataMessage) => {
-        if (dataMessage.dataInfo === 'email') {
-            setErrorEmail(dataMessage.message);
+        if (dataMessage.dataInfo === 'rut') {
+            setErrorRut(dataMessage.message);
         } else if (dataMessage.dataInfo === 'password') {
             setErrorPassword(dataMessage.message);
         }
@@ -26,7 +26,7 @@ const useLogin = () => {
     };
 
     return {
-        errorEmail,
+        errorRut,
         errorPassword,
         inputData,
         errorData,
