@@ -13,7 +13,8 @@ const CalificacionesPage = () => {
         setLoading(true); // Mostrar indicador de carga
         const data = await getCalificaciones();
         setCalificaciones(data);
-      } catch ( err ) {
+      } catch (err) {
+        console.error(err);
         setError("Hubo un problema al obtener las calificaciones."); // Establecer error
       } finally {
         setLoading(false); // Ocultar indicador de carga
