@@ -5,7 +5,7 @@ import { convertirMinusculas } from '@helpers/formatData.js';
 
 export async function login(dataUser) {
     try {
-        const response = await axios.post('/auth/login', {
+        const response = await axios.post("/auth/login", {
             rut: dataUser.rut, 
             password: dataUser.password
         });
@@ -26,11 +26,13 @@ export async function login(dataUser) {
 export async function register(data) {
     try {
         const dataRegister = convertirMinusculas(data);
-        const { nombreCompleto, email, rut, password } = dataRegister
-        const response = await axios.post('/auth/register', {
-            nombreCompleto,
+        const { nombre, apellido, email, rut, rol, password } = dataRegister
+        const response = await axios.post("/auth/register", {
+            nombre,
+            apellido,
             email,
             rut,
+            rol,
             password
         });
         return response.data;
@@ -41,7 +43,7 @@ export async function register(data) {
 
 export async function logout() {
     try {
-        await axios.post('/auth/logout');
+        await axios.post("/auth/logout");
         sessionStorage.removeItem('usuario');
         cookies.remove('jwt');
         cookies.remove('jwt-auth');

@@ -98,7 +98,7 @@ const patternRut = new RegExp(/^(?:(?:[1-9]\d{0}|[1-2]\d{1})(\.\d{3}){2}|[1-9]\d
                         fieldType: 'input',
                         type: "password",
                         required: true,
-                        minLength: 8,
+                        minLength: 6,
                         maxLength: 26,
                         pattern: /^[a-zA-Z0-9]+$/,
                         patternMessage: "Debe contener solo letras y números",
