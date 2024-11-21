@@ -20,7 +20,7 @@ async function setupServer() {
     app.use(
       cors({
         credentials: true,
-        origin: true,
+        origin: "http://localhost:5173",
       }),
     );
 
@@ -73,7 +73,7 @@ async function setupAPI() {
   try {
     await connectDB();
     await setupServer();
-    await initialSetup(); // Llamada a initialSetup para crear usuarios y asignaturas
+    await initialSetup(); 
   } catch (error) {
     console.log("Error en index.js -> setupAPI(), el error es: ", error);
   }
