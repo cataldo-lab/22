@@ -2,6 +2,7 @@ import { startCase } from 'lodash';
 import { format as formatRut } from 'rut.js';
 import { format as formatTempo } from "@formkit/tempo";
 
+
 export function formatUserData(user) {
     return {
         ...user,
@@ -34,3 +35,11 @@ export function formatPostUpdate(user) {
 }
 
 
+export const normalizeRut = (rut) => {
+    if (!rut) return ""; 
+    const cleanRut = rut.replace(/[.-]/g, "").trim();
+    if (cleanRut.length < 8) return "Es muy corto";
+    const body = cleanRut.slice(0, -1);
+    const verifier = cleanRut.slice(-1);
+    return `${body}-${verifier}`;
+  };

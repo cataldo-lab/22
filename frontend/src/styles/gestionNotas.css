@@ -1,0 +1,40 @@
+.gestion-notas {
+    font-family: Arial, sans-serif;
+    padding: 20px;
+  }
+  
+  .student-list ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .student-list ul li {
+    margin: 10px 0;
+  }
+  
+  .student-list button {
+    padding: 10px 15px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .grades-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  
+  .grades-table th,
+  .grades-table td {
+    padding: 10px;
+    border: 1px solid #ddd;
+  }
+  
+  .add-grade input {
+    margin: 5px;
+    padding: 8px;
+  }
+  
