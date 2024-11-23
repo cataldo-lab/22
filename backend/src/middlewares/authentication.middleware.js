@@ -9,7 +9,7 @@ export function authenticateJwt(req, res, next) {
     }
     try {
         const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-        console.log("Contenido de decoded:", decoded); // <-- Verifica que el rol está presente
+        console.log("Contenido de decoded:", decoded); 
         req.user = decoded;
         next();
     } catch (error) {
