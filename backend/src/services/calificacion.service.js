@@ -68,13 +68,13 @@ export async function getCalificacionesByAlumnoIdService(id_alumno) {
     }
 }
 
-export async function updateCalificacionService(id_nota, id_alumno, id_asignatura, puntaje_alumno) {
+export async function updateCalificacionService({ id_nota, id_alumno, id_asignatura, puntaje_alumno }) {
     try {
         const alumnoRepository = AppDataSource.getRepository(Alumno);
         const asignaturaRepository = AppDataSource.getRepository(Asignatura);
         const evaluadoRepository = AppDataSource.getRepository(Evaluado);
 
-        // Validar existencia de la calificación
+        // Validar existencia de la calificación por ID
         const calificacion = await evaluadoRepository.findOneBy({ id_nota });
         if (!calificacion) throw new Error("Calificación no encontrada.");
 
@@ -89,14 +89,14 @@ export async function updateCalificacionService(id_nota, id_alumno, id_asignatur
         const asignatura = await asignaturaRepository.findOneBy({ id_asignatura });
         if (!asignatura) throw new Error("Asignatura no encontrada.");
 
-        // Recalcular la nota
+        // Calcular la nota
         const puntaje_total = 70;
         const ponderacion = tipo_evaluacion === "PIE" ? 0.5 : 0.6;
         const porcentaje_logrado = (puntaje_alumno / puntaje_total) * 100;
         let nuevaNota = ((porcentaje_logrado - (ponderacion * 10)) / (100 - (ponderacion * 10))) * 6 + 1;
         nuevaNota = parseFloat(nuevaNota.toFixed(2));
 
-        // Actualizar la calificación existente
+        // Actualizar y guardar la calificación
         Object.assign(calificacion, {
             id_alumno,
             id_asignatura,
@@ -105,7 +105,6 @@ export async function updateCalificacionService(id_nota, id_alumno, id_asignatur
             nota: nuevaNota,
             updatedAt: new Date(),
         });
-
         await evaluadoRepository.save(calificacion);
 
         return [calificacion, null];
@@ -114,6 +113,8 @@ export async function updateCalificacionService(id_nota, id_alumno, id_asignatur
         return [null, error.message];
     }
 }
+
+
 
 
 export async function deleteCalificacionService(id_nota) {

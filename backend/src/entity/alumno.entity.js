@@ -45,6 +45,16 @@ const AlumnoSchema = new EntitySchema({
       joinColumn: { name: "id_curso", referencedColumnName: "id_curso" },
       onDelete: "SET NULL",
     },
+    evaluados: {
+      type: "one-to-many",
+      target: "Evaluado",
+      inverseSide: "alumno",
+    },
+    asignaturas: {
+      type: "many-to-many", 
+      target: "Asignatura",
+      mappedBy: "alumnos",  
+    },
   },
 });
 

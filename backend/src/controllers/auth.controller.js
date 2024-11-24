@@ -72,3 +72,14 @@ export async function logout(req, res) {
     handleErrorServer(res, 500, error.message);
   }
 }
+
+export function generarTokenAlumno(alumno) {
+  const payload = {
+      id_alumno: alumno.id_alumno, // Incluye el ID del alumno
+      email: alumno.email,
+      rut: alumno.rut,
+      rol: alumno.rol,
+  };
+
+  return jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "24h" });
+}

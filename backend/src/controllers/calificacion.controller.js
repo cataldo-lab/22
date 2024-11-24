@@ -46,42 +46,33 @@ export async function createCalificacion(req, res) {
 //No tocar
 export async function updateCalificacion(req, res) {
     try {
-        // Extraer el id_nota de los parámetros de la solicitud
-        const { id_nota } = req.params;
+        const { id_nota, id_alumno, id_asignatura, puntaje_alumno } = req.body;
 
-        // Extraer el cuerpo de la solicitud
-        const { id_alumno, id_asignatura, puntaje_alumno } = req.body;
-
-        // Validar que los datos necesarios estén presentes
         if (!id_nota || !id_alumno || !id_asignatura || puntaje_alumno === undefined) {
-            return handleErrorClient(
-                res,
-                400,
-                "Faltan datos requeridos: id_nota, id_alumno, id_asignatura o puntaje_alumno."
-            );
+            return res.status(400).json({ mensaje: "Faltan datos requeridos: " });
         }
 
-        // Llamar al servicio para actualizar la calificación
-        const [calificacionActualizada, error] = await updateCalificacionService(
+        const [calificacionActualizada, error] = await updateCalificacionService({
             id_nota,
             id_alumno,
             id_asignatura,
-            puntaje_alumno
-        );
+            puntaje_alumno,
+        });
 
-        // Manejar errores del servicio
         if (error) {
-            return handleErrorClient(res, 400, error);
+            return res.status(404).json({ mensaje: error });
         }
 
-        // Respuesta exitosa
-        handleSuccess(res, 200, "Calificación actualizada exitosamente", calificacionActualizada);
+        res.status(200).json({
+            mensaje: "Calificación actualizada exitosamente",
+            calificacion: calificacionActualizada,
+        });
     } catch (error) {
-        // Manejo de errores del servidor
         console.error("Error en updateCalificacion:", error.message);
-        handleErrorServer(res, 500, error.message);
+        res.status(500).json({ mensaje: "Error interno del servidor." });
     }
 }
+
 
 
 export async function deleteCalificacion(req, res) {

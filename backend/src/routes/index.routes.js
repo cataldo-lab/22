@@ -3,6 +3,9 @@ import { Router } from "express";
 import userRoutes from "./user.routes.js";
 import authRoutes from "./auth.routes.js";
 import calificacionesRoutes from "./calificacion.routes.js";
+import listaRoutes from "./lista.routes.js";
+import alumnoRoutes from "./alumno.routes.js";
+
 
 const router = Router();
 
@@ -10,6 +13,8 @@ const router = Router();
 router.use("/auth", authRoutes);
 router.use("/user", userRoutes);
 router.use("/calificaciones", calificacionesRoutes);
+router.use("/lista", listaRoutes);
+router.use("/alumno", alumnoRoutes);
 
 
 export default router;

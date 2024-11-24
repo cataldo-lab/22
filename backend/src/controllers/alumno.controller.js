@@ -1,22 +1,20 @@
 "use strict";
-import { handleErrorClient, handleErrorServer, handleSuccess } from "../handlers/responseHandlers.js";
 
+import { getCalificacionesByAlumnoIdService } from "../services/alumno.service.js";
 
-
+// Controlador para obtener calificaciones del alumno autenticado
 export async function getCalificacionesAlumno(req, res) {
     try {
-        const id_alumno = req.user.id;  
+        // Llama al servicio para obtener las calificaciones
+        const [calificaciones, error] = await getCalificacionesByAlumnoIdService(req);
 
-        if (!id_alumno) {
-            return handleErrorClient(res, 400, "El ID del alumno es requerido.");
+        if (error) {
+            return res.status(404).json({ mensaje: error });
         }
 
-        const [calificaciones, errorCalificacion] = await getCalificacionesAlumnoService(id_alumno);
-        if (errorCalificacion) return handleErrorClient(res, 404, errorCalificacion);
-
-        handleSuccess(res, 200, "Calificaciones obtenidas exitosamente", calificaciones);
+        res.status(200).json(calificaciones);
     } catch (error) {
-        handleErrorServer(res, 500, error.message);
+        console.error("Error en getCalificacionesAlumno:", error.message);
+        res.status(500).json({ mensaje: "Error interno del servidor." });
     }
 }
-

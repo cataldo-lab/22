@@ -45,6 +45,13 @@ const CursoSchema = new EntitySchema({
       onUpdate: "CURRENT_TIMESTAMP",
     },
   },
+  relations: {
+    alumnos: {
+      type: "one-to-many",
+      target: "Alumno",
+      inverseSide: "curso",
+    },
+  },
 });
 
 export default CursoSchema;

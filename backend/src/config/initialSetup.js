@@ -275,12 +275,50 @@ async function createEvaluados() {
   }
 }
 
+async function createAsignaturaAlumnos() {
+  try {
+      const asignaturaRepository = AppDataSource.getRepository(Asignatura);
+      const alumnoRepository = AppDataSource.getRepository(Alumno);
+
+      // Obtener asignaturas y alumnos
+      const asignaturas = await asignaturaRepository.find({ relations: ["alumnos"] });
+      const alumnos = await alumnoRepository.find();
+
+      if (asignaturas.length === 0 || alumnos.length === 0) {
+          console.log("❌ No se encontraron asignaturas o alumnos para asociar.");
+          return;
+      }
+
+      // Asociar alumnos a asignaturas
+      const relaciones = [
+          { id_asignatura: asignaturas[0].id_asignatura, alumnos: [alumnos[0], alumnos[1]] },
+          { 
+            id_asignatura: asignaturas[1]?.id_asignatura || asignaturas[0].id_asignatura, alumnos: [alumnos[2], 
+            alumnos[3]]
+           },
+      ];
+
+      for (const relacion of relaciones) {
+          const asignatura = asignaturas.find(a => a.id_asignatura === relacion.id_asignatura);
+          if (asignatura) {
+              asignatura.alumnos = relacion.alumnos; // Asociar los alumnos
+              await asignaturaRepository.save(asignatura); // Guardar la relación
+          }
+      }
+
+      console.log("✅ Alumnos asociados correctamente a las asignaturas.");
+  } catch (error) {
+      console.error("❌ Error al asociar alumnos a asignaturas:", error.message);
+  }
+}
+
 
 async function initialSetup() {
     await createUsers();
     await createAsignaturas();
     await createCursos();
     await createEvaluados();
+    await createAsignaturaAlumnos();
 }
 
 export { initialSetup };

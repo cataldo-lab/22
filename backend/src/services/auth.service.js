@@ -10,6 +10,7 @@ import Profesor from "../entity/profesor.entity.js";
 export async function loginService(user) {
   try {
     const userRepository = AppDataSource.getRepository(User);
+    const alumnoRepository = AppDataSource.getRepository(Alumno);
     const { rut, password } = user;
 
     const createErrorMessage = (dataInfo, message) => ({
@@ -31,8 +32,13 @@ export async function loginService(user) {
       return [null, createErrorMessage("password", "La contraseña es incorrecta")];
     }
 
+    // Obtener id_alumno si el usuario es un alumno
+    const alumno = await alumnoRepository.findOneBy({
+      id_usuario: userFound.id_usuario
+    });
+
     const payload = {
-      nombreCompleto: userFound.nombreCompleto,
+      id_alumno: alumno ? alumno.id_alumno : null,
       email: userFound.email,
       rut: userFound.rut,
       rol: userFound.rol,
@@ -48,6 +54,7 @@ export async function loginService(user) {
     return [null, "Error interno del servidor"];
   }
 }
+
 
 export async function registerService(userData) {
   try {
