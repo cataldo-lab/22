@@ -10,7 +10,6 @@ import {
   handleSuccess,
 } from "../handlers/responseHandlers.js";
 
-
 export async function login(req, res) {
   try {
     const { body } = req;
@@ -34,10 +33,6 @@ export async function login(req, res) {
     handleErrorServer(res, 500, error.message);
   }
 }
-
-
-
-
 
 export async function register(req, res) {
   try {

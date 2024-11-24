@@ -4,9 +4,10 @@ import Asignatura from "../entity/asignatura.entity.js";
 import Alumno from "../entity/alumno.entity.js";
 import Profesor from "../entity/profesor.entity.js";
 import Curso from "../entity/curso.entity.js";
-import Evaluado from "../entity/evaluado.entity.js";
 import { AppDataSource } from "./configDb.js";
 import { encryptPassword } from "../helpers/bcrypt.helper.js";
+import Evaluado from "../entity/evaluado.entity.js";
+
 
 async function createUsers() {
     try {
@@ -208,116 +209,78 @@ async function createCursos() {
 }
 
 async function createEvaluados() {
-    try {
+  try {
       const evaluadoRepository = AppDataSource.getRepository(Evaluado);
       const alumnoRepository = AppDataSource.getRepository(Alumno);
       const asignaturaRepository = AppDataSource.getRepository(Asignatura);
-  
+
+      // Verificar si ya existen evaluaciones en la base de datos
       const evaluadoCount = await evaluadoRepository.count();
       if (evaluadoCount > 0) {
-        console.log("ℹ️ Evaluados ya existen en la base de datos.");
-        return;
+          console.log("ℹ️ Evaluaciones ya existen en la base de datos.");
+          return;
       }
-  
+
+      // Obtener alumnos y asignaturas
+      const alumnos = await alumnoRepository.find({ take: 5 }); // Limitar a los primeros 5 alumnos
       const asignaturas = await asignaturaRepository.find();
-      const alumnos = await alumnoRepository.find();
-  
-      if (!asignaturas.length || !alumnos.length) {
-        console.log("❌ No hay datos suficientes para crear evaluaciones.");
-        return;
+
+      if (alumnos.length === 0 || asignaturas.length === 0) {
+          console.log("❌ No hay alumnos o asignaturas disponibles para crear evaluaciones.");
+          return;
       }
-  
+
+      // Crear evaluaciones de prueba
       const evaluaciones = [
-        {
-          tipo_evaluacion: "Examen",
-          descripcion: "Primer examen parcial",
-          fecha: "2024-05-10",
-          ponderacion_nota: 0.6,
-          puntaje_alumno: 80,
-          nota: 5.5,
-        },
-        {
-          tipo_evaluacion: "Trabajo",
-          descripcion: "Proyecto final",
-          fecha: "2024-06-15",
-          ponderacion_nota: 0.4,
-          puntaje_alumno: 90,
-          nota: 6.0,
-        },
+          {
+              id_alumno: alumnos[0].id_alumno,
+              id_asignatura: asignaturas[0].id_asignatura,
+              nota: 5.5,
+              ponderacion_nota: 0.6,
+              tipo_evaluacion: "Parcial",
+              descripcion: "Primera evaluación del curso.",
+              fecha: "2024-01-15",
+              puntaje_alumno: 90,
+          },
+          {
+              id_alumno: alumnos[1].id_alumno,
+              id_asignatura: asignaturas[1]?.id_asignatura || asignaturas[0].id_asignatura,
+              nota: 6.0,
+              ponderacion_nota: 0.7,
+              tipo_evaluacion: "Examen",
+              descripcion: "Evaluación final del semestre.",
+              fecha: "2024-06-20",
+              puntaje_alumno: 95,
+          },
+          {
+              id_alumno: alumnos[2].id_alumno,
+              id_asignatura: asignaturas[2]?.id_asignatura || asignaturas[0].id_asignatura,
+              nota: 4.0,
+              ponderacion_nota: 0.5,
+              tipo_evaluacion: "Tarea",
+              descripcion: "Entrega de informe.",
+              fecha: "2024-03-10",
+              puntaje_alumno: 70,
+          },
       ];
-  
-      for (const asignatura of asignaturas) {
-        const alumnosEvaluados = alumnos.slice(0, 3);
-  
-        for (const alumno of alumnosEvaluados) {
-          for (const evaluacion of evaluaciones) {
-            const evaluado = evaluadoRepository.create({
-              id_asignatura: asignatura.id_asignatura,
-              id_alumno: alumno.id_alumno,
-              ...evaluacion,
-            });
-  
-            await evaluadoRepository.save(evaluado);
-          }
-        }
+
+      for (const evaluacionData of evaluaciones) {
+          const newEvaluado = evaluadoRepository.create(evaluacionData);
+          await evaluadoRepository.save(newEvaluado);
       }
-  
+
       console.log("✅ Evaluaciones creadas exitosamente.");
-    } catch (error) {
-      console.error("❌ Error al crear evaluados:", error.message);
-    }
+  } catch (error) {
+      console.error("❌ Error al crear evaluaciones:", error.message);
   }
+}
 
-
-  async function createViewProfesorAlumnos() {
-    try {
-      if (!AppDataSource.isInitialized) {
-        await AppDataSource.initialize();
-      }
-  
-      const queryRunner = AppDataSource.createQueryRunner();
-  
-      // Verificar y eliminar objetos existentes
-      console.log("🔄 Verificando existencia de 'vista_profesor_alumnos'...");
-      await queryRunner.query(`
-        DROP VIEW IF EXISTS vista_profesor_alumnos CASCADE;
-      `);
-  
-      console.log("✅ Eliminación previa completada. Creando la vista...");
-  
-      // Crear la vista
-      await queryRunner.query(`
-        CREATE VIEW vista_profesor_alumnos AS
-        SELECT DISTINCT
-        p.id_profesor,
-        a.id_alumno,
-        au.nombre AS alumno_nombre,
-        au.apellido AS alumno_apellido,
-        c.nivel_curso,
-        c.seccion_curso,
-        asig.nombre_asignatura
-        FROM profesores p
-        JOIN users u ON p.id_usuario = u.id_usuario
-        JOIN asignaturas asig ON asig.id_profesor = p.id_profesor
-        JOIN evaluados e ON e.id_asignatura = asig.id_asignatura
-        JOIN alumnos a ON a.id_alumno = e.id_alumno
-        JOIN cursos c ON a.id_curso = c.id_curso
-        JOIN users au ON a.id_usuario = au.id_usuario;
-      `);
-  
-      console.log("✅ Vista 'vista_profesor_alumnos' creada correctamente.");
-      await queryRunner.release();
-    } catch (error) {
-      console.error("❌ Error al crear la vista 'vista_profesor_alumnos':", error.message);
-    }
-  }
 
 async function initialSetup() {
     await createUsers();
     await createAsignaturas();
     await createCursos();
     await createEvaluados();
-    createViewProfesorAlumnos()
 }
 
 export { initialSetup };

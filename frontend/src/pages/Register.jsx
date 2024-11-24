@@ -103,19 +103,6 @@ const patternRut = new RegExp(/^(?:(?:[1-9]\d{0}|[1-2]\d{1})(\.\d{3}){2}|[1-9]\d
                         pattern: /^[a-zA-Z0-9]+$/,
                         patternMessage: "Debe contener solo letras y números",
                     },
-                    {
-                    
-                        label: "Rol",
-                        name: "rol",
-                        fieldType: "select",
-                        options: [
-                            { value: "alumno", label: "Alumno" },
-                            { value: "alumno", label: "Profesor" },
-                                ],
-                        required: true,
-                        defaultValue: "alumno",
-                    },
-                    
 				]}
 				buttonText="Registrarse"
 				onSubmit={registerSubmit}

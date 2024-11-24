@@ -5,7 +5,7 @@ import {
   handleErrorClient,
   handleErrorServer,
 } from "../handlers/responseHandlers.js";
-/*
+
 export async function isProfesor(req, res, next) {
   try {
     const userRepository = AppDataSource.getRepository(User);
@@ -36,7 +36,7 @@ export async function isProfesor(req, res, next) {
   } catch (error) {
     handleErrorServer(res, 500, error.message);
   }
-}*/
+}
 
 export async function isAlumno(req, res, next) {
   try {
@@ -137,31 +137,4 @@ export function authorizeRoles(...roles) {
   return (req, res, next) => {
     checkRole(req, res, next, roles);
   };
-}
-
-export async function isProfesor(req, res, next) {
-  try {
-    console.log("Contenido de req.user en isProfesor:", req.user);
-
-    // Verificar que el token incluye `id_profesor`
-    if (!req.user || !req.user.id_profesor) {
-      return res.status(403).json({
-        message: "Acceso denegado. El token no contiene un ID de profesor válido.",
-      });
-    }
-    if (typeof req.user.id_profesor !== "number") {
-      return res.status(400).json({
-        message: "Formato inválido de ID de profesor. Se esperaba un número.",
-      });
-    }
-
-    console.log("Acceso autorizado para profesor con ID:", req.user.id_profesor);
-    next();
-  } catch (error) {
-    console.error("Error en isProfesor:", error.message);
-    res.status(500).json({
-      message: "Error interno del servidor.",
-      error: error.message,
-    });
-  }
 }
