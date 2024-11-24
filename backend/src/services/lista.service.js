@@ -1,35 +1,30 @@
+"use strict";
 import { AppDataSource } from "../config/configDb.js";
-import Alumno from "../entity/alumno.entity.js";
+import ProfesorAlumnosView from "../entity/ProfesorAlumnos.view.js";
 
-export async function getAlumnosPorProfesor(profesorId) {
-    try {
-        const alumnos = await AppDataSource
-            .getRepository(Alumno)
-            .createQueryBuilder("alumno")
-            .leftJoinAndSelect("alumno.usuario", "usuario") // Relación alumno-usuario
-            .leftJoinAndSelect("alumno.curso", "curso") // Relación alumno-curso
-            .leftJoinAndSelect("curso.asignaturas", "asignatura") // Relación curso-asignatura
-            .leftJoinAndSelect("asignatura.profesor", "profesor") // Relación asignatura-profesor
-            .where("profesor.id_profesor = :profesorId", { profesorId }) // Filtrar por profesor
-            .getMany();
+export async function getAlumnosByProfesor(idProfesor) {
+  try {
+    const vistaRepository = AppDataSource.getRepository(ProfesorAlumnosView);
 
-        if (!alumnos.length) {
-            return {
-                status: "Client error",
-                message: "No se encontraron alumnos asignados a este profesor.",
-            };
-        }
+    // Filtrar por el ID del profesor autenticado
+    const alumnos = await vistaRepository.find({
+      where: { id_profesor: idProfesor },
+      select: [
+        "id_alumno",
+        "alumno_nombre",
+        "alumno_apellido",
+        "nivel_curso",
+        "seccion_curso",
+      ],
+    });
 
-        return {
-            status: "Success",
-            message: "Lista de alumnos obtenida correctamente.",
-            data: alumnos,
-        };
-    } catch (error) {
-        console.error("Error en getAlumnosPorProfesor:", error.message);
-        return {
-            status: "Server error",
-            message: "Hubo un error al obtener los alumnos.",
-        };
+    if (!alumnos.length) {
+      throw new Error("No se encontraron alumnos asignados para este profesor.");
     }
+
+    return alumnos;
+  } catch (error) {
+    console.error("Error en getAlumnosByProfesor:", error.message);
+    throw new Error("Error al obtener alumnos asignados.");
+  }
 }

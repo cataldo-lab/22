@@ -4,6 +4,7 @@ import Asignatura from "../entity/asignatura.entity.js";
 import Alumno from "../entity/alumno.entity.js";
 import Profesor from "../entity/profesor.entity.js";
 import Curso from "../entity/curso.entity.js";
+import Evaluado from "../entity/evaluado.entity.js";
 import { AppDataSource } from "./configDb.js";
 import { encryptPassword } from "../helpers/bcrypt.helper.js";
 
@@ -206,10 +207,117 @@ async function createCursos() {
   }
 }
 
+async function createEvaluados() {
+    try {
+      const evaluadoRepository = AppDataSource.getRepository(Evaluado);
+      const alumnoRepository = AppDataSource.getRepository(Alumno);
+      const asignaturaRepository = AppDataSource.getRepository(Asignatura);
+  
+      const evaluadoCount = await evaluadoRepository.count();
+      if (evaluadoCount > 0) {
+        console.log("ℹ️ Evaluados ya existen en la base de datos.");
+        return;
+      }
+  
+      const asignaturas = await asignaturaRepository.find();
+      const alumnos = await alumnoRepository.find();
+  
+      if (!asignaturas.length || !alumnos.length) {
+        console.log("❌ No hay datos suficientes para crear evaluaciones.");
+        return;
+      }
+  
+      const evaluaciones = [
+        {
+          tipo_evaluacion: "Examen",
+          descripcion: "Primer examen parcial",
+          fecha: "2024-05-10",
+          ponderacion_nota: 0.6,
+          puntaje_alumno: 80,
+          nota: 5.5,
+        },
+        {
+          tipo_evaluacion: "Trabajo",
+          descripcion: "Proyecto final",
+          fecha: "2024-06-15",
+          ponderacion_nota: 0.4,
+          puntaje_alumno: 90,
+          nota: 6.0,
+        },
+      ];
+  
+      for (const asignatura of asignaturas) {
+        const alumnosEvaluados = alumnos.slice(0, 3);
+  
+        for (const alumno of alumnosEvaluados) {
+          for (const evaluacion of evaluaciones) {
+            const evaluado = evaluadoRepository.create({
+              id_asignatura: asignatura.id_asignatura,
+              id_alumno: alumno.id_alumno,
+              ...evaluacion,
+            });
+  
+            await evaluadoRepository.save(evaluado);
+          }
+        }
+      }
+  
+      console.log("✅ Evaluaciones creadas exitosamente.");
+    } catch (error) {
+      console.error("❌ Error al crear evaluados:", error.message);
+    }
+  }
+
+
+  async function createViewProfesorAlumnos() {
+    try {
+      if (!AppDataSource.isInitialized) {
+        await AppDataSource.initialize();
+      }
+  
+      const queryRunner = AppDataSource.createQueryRunner();
+  
+      // Verificar y eliminar objetos existentes
+      console.log("🔄 Verificando existencia de 'vista_profesor_alumnos'...");
+      await queryRunner.query(`
+        DROP VIEW IF EXISTS vista_profesor_alumnos CASCADE;
+      `);
+  
+      console.log("✅ Eliminación previa completada. Creando la vista...");
+  
+      // Crear la vista
+      await queryRunner.query(`
+        CREATE VIEW vista_profesor_alumnos AS
+        SELECT DISTINCT
+        p.id_profesor,
+        a.id_alumno,
+        au.nombre AS alumno_nombre,
+        au.apellido AS alumno_apellido,
+        c.nivel_curso,
+        c.seccion_curso,
+        asig.nombre_asignatura
+        FROM profesores p
+        JOIN users u ON p.id_usuario = u.id_usuario
+        JOIN asignaturas asig ON asig.id_profesor = p.id_profesor
+        JOIN evaluados e ON e.id_asignatura = asig.id_asignatura
+        JOIN alumnos a ON a.id_alumno = e.id_alumno
+        JOIN cursos c ON a.id_curso = c.id_curso
+        JOIN users au ON a.id_usuario = au.id_usuario;
+      `);
+  
+      console.log("✅ Vista 'vista_profesor_alumnos' creada correctamente.");
+      await queryRunner.release();
+    } catch (error) {
+      console.error("❌ Error al crear la vista 'vista_profesor_alumnos':", error.message);
+    }
+  }
+
 async function initialSetup() {
     await createUsers();
     await createAsignaturas();
     await createCursos();
+    await createEvaluados();
+    createViewProfesorAlumnos()
 }
 
 export { initialSetup };
