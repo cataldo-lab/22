@@ -15,7 +15,7 @@ import {
 const router = Router();
 router.use(authenticateJwt);
 
-router.get("/alumno/:id_alumno", authorizeRoles("alumno", "profesor"), getCalificacionesByAlumnoId);
+router.get("/alumno/:id_alumno", authorizeRoles("profesor"), getCalificacionesByAlumnoId);
 router.post("/", authorizeRoles("profesor"), createCalificacion);
 //router.patch("/:id_nota", authorizeRoles("profesor"), updateCalificacion);
 router.patch("/:id_nota", (req, res, next) => {

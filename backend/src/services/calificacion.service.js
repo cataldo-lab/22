@@ -68,6 +68,7 @@ export async function getCalificacionesByAlumnoIdService(id_alumno) {
     }
 }
 
+
 export async function updateCalificacionService(id_nota, id_alumno, id_asignatura, puntaje_alumno) {
     try {
         const alumnoRepository = AppDataSource.getRepository(Alumno);
@@ -76,21 +77,25 @@ export async function updateCalificacionService(id_nota, id_alumno, id_asignatur
 
         // Validar existencia de la calificación
         const calificacion = await evaluadoRepository.findOneBy({ id_nota });
-        if (!calificacion) throw new Error("Calificación no encontrada.");
+        if (!calificacion) throw new Error(`Calificación con ID ${id_nota} no encontrada.`);
 
         // Validar existencia del alumno
         const alumno = await alumnoRepository.findOneBy({ id_alumno });
-        if (!alumno) throw new Error("Alumno no encontrado.");
+        if (!alumno) throw new Error(`Alumno con ID ${id_alumno} no encontrado.`);
 
-        // Determinar si pertenece al programa PIE
+        // Validar si pertenece al programa PIE
         const tipo_evaluacion = alumno.alumno_Pie ? "PIE" : "ESTÁNDAR";
 
         // Validar existencia de la asignatura
         const asignatura = await asignaturaRepository.findOneBy({ id_asignatura });
-        if (!asignatura) throw new Error("Asignatura no encontrada.");
+        if (!asignatura) throw new Error(`Asignatura con ID ${id_asignatura} no encontrada.`);
 
-        // Recalcular la nota
+        // Calcular la nueva nota
         const puntaje_total = 70;
+        if (puntaje_alumno < 0 || puntaje_alumno > puntaje_total) {
+            throw new Error(`El puntaje del alumno (${puntaje_alumno}) debe estar entre 0 y ${puntaje_total}.`);
+        }
+
         const ponderacion = tipo_evaluacion === "PIE" ? 0.5 : 0.6;
         const porcentaje_logrado = (puntaje_alumno / puntaje_total) * 100;
         let nuevaNota = ((porcentaje_logrado - (ponderacion * 10)) / (100 - (ponderacion * 10))) * 6 + 1;
