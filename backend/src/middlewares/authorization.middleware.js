@@ -149,6 +149,11 @@ export async function isProfesor(req, res, next) {
         message: "Acceso denegado. El token no contiene un ID de profesor válido.",
       });
     }
+    if (typeof req.user.id_profesor !== "number") {
+      return res.status(400).json({
+        message: "Formato inválido de ID de profesor. Se esperaba un número.",
+      });
+    }
 
     console.log("Acceso autorizado para profesor con ID:", req.user.id_profesor);
     next();

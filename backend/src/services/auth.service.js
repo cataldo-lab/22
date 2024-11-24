@@ -32,10 +32,10 @@ export async function loginService(user) {
     }
 
     const payload = {
-      nombreCompleto: userFound.nombreCompleto,
-      email: userFound.email,
+      id_profesor: userFound.id_profesor || null, 
+      id_alumno: userFound.id_alumno || null,    
       rut: userFound.rut,
-      rol: userFound.rol,
+      rol: userFound.rol, 
     };
 
     const accessToken = jwt.sign(payload, ACCESS_TOKEN_SECRET, {
