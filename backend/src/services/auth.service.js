@@ -11,6 +11,7 @@ export async function loginService(user) {
   try {
     const userRepository = AppDataSource.getRepository(User);
     const alumnoRepository = AppDataSource.getRepository(Alumno);
+    const profesorRepository = AppDataSource.getRepository(Profesor); // Agregar el repositorio de Profesor
     const { rut, password } = user;
 
     const createErrorMessage = (dataInfo, message) => ({
@@ -37,8 +38,14 @@ export async function loginService(user) {
       id_usuario: userFound.id_usuario
     });
 
+    // Obtener id_profesor si el usuario es un profesor
+    const profesor = await profesorRepository.findOneBy({
+      id_usuario: userFound.id_usuario
+    });
+
     const payload = {
       id_alumno: alumno ? alumno.id_alumno : null,
+      id_profesor: profesor ? profesor.id_profesor : null, // Incluir id_profesor si es un profesor
       email: userFound.email,
       rut: userFound.rut,
       rol: userFound.rol,

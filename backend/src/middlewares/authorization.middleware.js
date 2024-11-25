@@ -8,23 +8,9 @@ import {
 
 export async function isProfesor(req, res, next) {
   try {
-    const userRepository = AppDataSource.getRepository(User);
+    const { rol, id_profesor } = req.user; // Extraer rol y id_profesor del token JWT
 
-    const userFound = await userRepository.findOne({
-      where: { rut: req.user.rut },
-    });
-
-    if (!userFound) {
-      return handleErrorClient(
-        res,
-        404,
-        "Usuario no encontrado en la base de datos"
-      );
-    }
-
-    const rolUser = userFound.rol;
-
-    if (rolUser !== "profesor") {
+    if (rol !== "profesor") {
       return handleErrorClient(
         res,
         403,
@@ -32,7 +18,16 @@ export async function isProfesor(req, res, next) {
         "Se requiere un rol de profesor para realizar esta acción."
       );
     }
-    next();
+
+    if (!id_profesor) {
+      return handleErrorClient(
+        res,
+        403,
+        "El token no contiene un ID de profesor válido."
+      );
+    }
+
+    next(); // Continuar si las validaciones son correctas
   } catch (error) {
     handleErrorServer(res, 500, error.message);
   }
