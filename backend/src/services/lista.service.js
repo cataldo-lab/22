@@ -1,30 +1,37 @@
 import { AppDataSource } from "../config/configDb.js";
-import Profesor from "../entity/profesor.entity.js";
+import ProfesorSchema from "../entity/profesor.entity.js";
 
-async function obtenerAlumnosPorProfesor(idProfesor) {
+export async function getAlumnosPorProfesorService(req) {
     try {
-        const profesorRepository = AppDataSource.getRepository(Profesor);
+        // Extraer el ID del profesor desde el token del usuario autenticado
+        const { id_profesor } = req.user;
 
-        // Buscar al profesor con sus asignaturas y alumnos asociados
-        const profesor = await profesorRepository
-            .createQueryBuilder("profesor")
-            .leftJoinAndSelect("profesor.asignaturas", "asignatura") // Relación profesor -> asignaturas
-            .leftJoinAndSelect("asignatura.alumnos", "alumno")      // Relación asignatura -> alumnos
-            .where("profesor.id_profesor = :idProfesor", { idProfesor })
-            .getOne();
-
-        if (!profesor) {
-            return { mensaje: `No se encontraron alumnos para el profesor con ID ${idProfesor}.` };
+        if (!id_profesor) {
+            throw new Error("El token no contiene un ID de profesor válido.");
         }
 
-        // Obtener alumnos únicos de todas las asignaturas del profesor
+        // Obtener el repositorio de Profesores
+        const profesorRepository = AppDataSource.getRepository(ProfesorSchema);
+
+        // Buscar al profesor con sus asignaturas y alumnos relacionados
+        const profesor = await profesorRepository.findOne({
+            where: { id_profesor },
+            relations: ["asignaturas.alumnos"], // Relación anidada
+        });
+
+        if (!profesor) {
+            throw new Error("Profesor no encontrado.");
+        }
+
+        // Extraer los alumnos de las asignaturas relacionadas con el profesor
         const alumnos = profesor.asignaturas.flatMap(asignatura => asignatura.alumnos);
 
-        return alumnos;
+        // Eliminar duplicados en caso de que un alumno esté en varias asignaturas
+        const alumnosUnicos = Array.from(new Map(alumnos.map(a => [a.id_alumno, a])).values());
+
+        return [alumnosUnicos, null];
     } catch (error) {
-        console.error("❌ Error al obtener alumnos por profesor:", error.message);
-        throw error;
+        console.error("Error al obtener alumnos por profesor:", error.message);
+        return [null, error.message];
     }
 }
-
-export default obtenerAlumnosPorProfesor;
