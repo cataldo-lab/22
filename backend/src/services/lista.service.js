@@ -16,20 +16,25 @@ export async function getAlumnosPorProfesorService(req) {
         // Buscar al profesor con sus asignaturas y alumnos relacionados
         const profesor = await profesorRepository.findOne({
             where: { id_profesor },
-            relations: ["asignaturas.alumnos"], // Relación anidada
+            relations: ["asignaturas.alumnos.usuario"], // Relación completa
         });
 
         if (!profesor) {
             throw new Error("Profesor no encontrado.");
         }
 
-        // Extraer los alumnos de las asignaturas relacionadas con el profesor
-        const alumnos = profesor.asignaturas.flatMap(asignatura => asignatura.alumnos);
+        // Extraer los alumnos con sus asignaturas
+        const datos = profesor.asignaturas.flatMap(asignatura =>
+            asignatura.alumnos.map(alumno => ({
+                idAlumno: alumno.id_alumno,
+                nombre: alumno.usuario.nombre,
+                apellido: alumno.usuario.apellido,
+                nombreAsignatura: asignatura.nombre_asignatura,
+                idAsignatura: asignatura.id_asignatura,
+            }))
+        );
 
-        // Eliminar duplicados en caso de que un alumno esté en varias asignaturas
-        const alumnosUnicos = Array.from(new Map(alumnos.map(a => [a.id_alumno, a])).values());
-
-        return [alumnosUnicos, null];
+        return [datos, null];
     } catch (error) {
         console.error("Error al obtener alumnos por profesor:", error.message);
         return [null, error.message];
