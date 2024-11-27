@@ -1,32 +1,31 @@
 //import React from "react";
-import { Table, TableBody, TableCell, TableHead, TableRow, Button } from "@mui/material";
 
-const CalificacionesList = ({ calificaciones }) => {
+/*
+import { useState, useEffect } from 'react';
+import axios from 'axios';
+
+function CalificacionesList() {
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    axios.get('https://fakestoreapi.com/products/3')
+      .then(response => {
+        setData(response.data);
+      })
+      .catch(error => {
+        console.error(error);
+      });
+  }, []);
+
   return (
-    <Table>
-      <TableHead>
-        <TableRow>
-          <TableCell>Alumno</TableCell>
-          <TableCell>Asignatura</TableCell>
-          <TableCell>Calificación</TableCell>
-          <TableCell>Acciones</TableCell>
-        </TableRow>
-      </TableHead>
-      <TableBody>
-        {calificaciones.map((cal) => (
-          <TableRow key={cal.id}>
-            <TableCell>{cal.alumno}</TableCell>
-            <TableCell>{cal.asignatura}</TableCell>
-            <TableCell>{cal.nota}</TableCell>
-            <TableCell>
-              <Button variant="contained" color="primary">Editar</Button>
-              <Button variant="contained" color="secondary">Eliminar</Button>
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
-  );
-};
+    <div style={{backgroundColor: "red", height:'500px',marginTop: "200px" }}>
+      {data.map(post => (
+        <p key={post.id}>{post.title}</p>
 
-export default CalificacionesList;
+      ))}
+    </div>
+  );
+}
+
+
+export default CalificacionesList;*/

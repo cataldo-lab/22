@@ -1,6 +1,6 @@
-import axios from "axios";
 
-const API_URL = "http://localhost:3000/api/calificaciones";
+
+/*
 
 export const getCalificaciones = async () => {
   try {
@@ -29,3 +29,5 @@ export const deleteCalificacion = async (id) => {
     console.error("Error deleting calificacion:", error);
   }
 };
+
+*/

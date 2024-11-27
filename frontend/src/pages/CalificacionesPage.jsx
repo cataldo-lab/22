@@ -1,3 +1,4 @@
+/*
 import { useState, useEffect } from "react";
 import { getCalificaciones } from "../services/calificacionesAPI.service.jsx";
 import CalificacionesList from "../components/CalificacionesList.jsx";
@@ -34,3 +35,4 @@ const CalificacionesPage = () => {
 };
 
 export default CalificacionesPage;
+*/

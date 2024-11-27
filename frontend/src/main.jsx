@@ -6,8 +6,10 @@ import Users from '@pages/Users';
 import Register from '@pages/Register';
 import Error404 from '@pages/Error404';
 import Root from '@pages/Root';
+import NotasPage from './pages/NotasPage';
 import ProtectedRoute from '@components/ProtectedRoute';
 import '@styles/styles.css';
+
 
 const router = createBrowserRouter([
   {
@@ -26,7 +28,15 @@ const router = createBrowserRouter([
           <Users />
         </ProtectedRoute>
         ),
-    }
+    },
+    {
+      path: '/notas', // Nueva ruta para Notas
+      element: (
+        <ProtectedRoute allowedRoles={['alumno']}>
+          <NotasPage />
+        </ProtectedRoute>
+      ),
+    },
     ]
   },
   {
