@@ -1,7 +1,10 @@
 "use strict";
 import Joi from "joi";
 
-// Validador de RUT
+
+
+
+
 const rutValidator = Joi.string()
     .min(9)
     .max(12)
@@ -37,7 +40,7 @@ export const calificacionValidation = Joi.object({
     }),
 });
 
-// Esquema de validación para actualizar calificaciones usando el ID de la calificación
+
 export const calificacionUpdateValidation = Joi.object({
     alumnoRut: rutValidator,
     idNota: idNotaValidator,
@@ -54,7 +57,7 @@ export const calificacionUpdateValidation = Joi.object({
     }),
 });
 
-// Esquema de validación para eliminar calificaciones usando el ID de la calificación
+
 export const calificacionDeleteValidation = Joi.object({
     alumnoRut: rutValidator,
     idNota: idNotaValidator,

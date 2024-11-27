@@ -9,6 +9,8 @@ const domainEmailValidator = (value, helper) => {
     return value;
 };
 
+
+
 // Validación para crear un usuario
 export const createUserValidationSchema = Joi.object({
     rut: Joi.string()
