@@ -8,6 +8,8 @@ import Error404 from '@pages/Error404';
 import Root from '@pages/Root';
 import NotasPage from './pages/NotasPage';
 import ProtectedRoute from '@components/ProtectedRoute';
+import CalificacionesPage from './pages/CalificacionesPage';
+import ListaAlumnoPage from './pages/ListaAlumnoPage';
 import '@styles/styles.css';
 
 
@@ -37,6 +39,24 @@ const router = createBrowserRouter([
         </ProtectedRoute>
       ),
     },
+    {
+      path: "/calificaciones",
+      element: (
+          <ProtectedRoute allowedRoles={["profesor"]}>
+              <CalificacionesPage />
+          </ProtectedRoute>
+      ),
+    },
+    {
+      path: '/lista-alumnos', // Ruta para ListaAlumnoPage
+      element: (
+        <ProtectedRoute allowedRoles={['profesor']}>
+          <ListaAlumnoPage />
+        </ProtectedRoute>
+      ),
+    }
+
+
     ]
   },
   {

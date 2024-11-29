@@ -1,8 +1,8 @@
 import axios from './root.service.js'; 
 
-export async function getAlumnoNotas() {
+export async function getListaAlumnos() {
     try {
-        const response = await axios.get('/alumno');
+        const response = await axios.get('lista/profesor/alumnos');
         console.log('Respuesta del backend:', response.data); 
         return response.data; 
     } catch (error) {
@@ -10,3 +10,8 @@ export async function getAlumnoNotas() {
         throw error; 
     }
 }
+
+export const getCalificaciones = async (id) => {
+    const response = await axios.get(`/calificaciones/alumno/${id}`);
+    return response.data;
+};

@@ -1,0 +1,74 @@
+.lista-alumnos-page {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.lista-alumnos-page h1 {
+    font-size: 24px;
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.alumnos-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+.alumno-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #fff;
+}
+
+.alumno-item:hover {
+    background-color: #f1f1f1;
+}
+
+.mostrar-notas-btn {
+    padding: 8px 12px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.mostrar-notas-btn:hover {
+    background-color: #0056b3;
+}
+
+.calificaciones-section {
+    margin-top: 20px;
+}
+
+.calificaciones-table {
+    width: 100%;
+    margin-top: 10px;
+    border-collapse: collapse;
+}
+
+.calificaciones-table th,
+.calificaciones-table td {
+    padding: 8px;
+    border: 1px solid #ddd;
+    text-align: center;
+}
+
+.calificaciones-table th {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.calificaciones-table td {
+    background-color: #f9f9f9;
+}

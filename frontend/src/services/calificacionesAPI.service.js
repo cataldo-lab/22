@@ -1,33 +1,31 @@
+import axios from "./root.service";
 
 
-/*
+export const getListaAlumnos=async()=>{
+  const response= await axios.get("lista/profesor/alumnos");
+  return response.data;
+}
 
-export const getCalificaciones = async () => {
-  try {
-    const response = await axios.get(`${API_URL}/alumno/1`); // Reemplaza el ID según sea necesario
-    return response.data.data;
-  } catch (error) {
-    console.error("Error fetching calificaciones:", error);
-    return [];
-  }
+// Obtener calificaciones
+export const getCalificaciones = async (id) => {
+    const response = await axios.get(`/calificaciones/alumno/${id}`);
+    return response.data;
 };
 
+// Crear una nueva calificación
 export const createCalificacion = async (calificacion) => {
-  try {
-    const response = await axios.post(API_URL, calificacion);
+    const response = await axios.post("/calificaciones", calificacion);
     return response.data;
-  } catch (error) {
-    console.error("Error creating calificacion:", error);
-  }
 };
 
+// Actualizar una calificación
+export const updateCalificacion = async (id, calificacion) => {
+    const response = await axios.put(`/calificaciones/${id}`, calificacion);
+    return response.data;
+};
+
+// Eliminar una calificación
 export const deleteCalificacion = async (id) => {
-  try {
-    const response = await axios.delete(`${API_URL}/${id}`);
+    const response = await axios.delete(`/calificaciones/${id}`);
     return response.data;
-  } catch (error) {
-    console.error("Error deleting calificacion:", error);
-  }
 };
-
-*/

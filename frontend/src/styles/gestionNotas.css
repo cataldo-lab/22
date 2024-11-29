@@ -1,40 +1,122 @@
-.gestion-notas {
-    font-family: Arial, sans-serif;
-    padding: 20px;
-  }
-  
-  .student-list ul {
-    list-style: none;
-    padding: 0;
-  }
-  
-  .student-list ul li {
-    margin: 10px 0;
-  }
-  
-  .student-list button {
-    padding: 10px 15px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-  }
-  
-  .grades-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-  }
-  
-  .grades-table th,
-  .grades-table td {
-    padding: 10px;
-    border: 1px solid #ddd;
-  }
-  
-  .add-grade input {
-    margin: 5px;
-    padding: 8px;
-  }
-  
+/* Estilo general para la página */
+.calificaciones-page {
+  max-width: 900px;
+  margin: 20px auto;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  font-family: Arial, sans-serif;
+}
+
+.calificaciones-page h1 {
+  font-size: 24px;
+  color: #333;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+/* Tabla de calificaciones */
+.calificaciones-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+.calificaciones-table th,
+.calificaciones-table td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: center;
+}
+
+.calificaciones-table th {
+  background-color: #007bff;
+  color: #fff;
+  font-weight: bold;
+}
+
+.calificaciones-table tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+.calificaciones-table tr:hover {
+  background-color: #f1f1f1;
+}
+
+/* Botones en la tabla */
+.calificaciones-table button {
+  padding: 5px 10px;
+  border: none;
+  background-color: #007bff;
+  color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.calificaciones-table button:hover {
+  background-color: #0056b3;
+}
+
+.calificaciones-table button:last-child {
+  background-color: #dc3545;
+}
+
+.calificaciones-table button:last-child:hover {
+  background-color: #a71d2a;
+}
+
+/* Sección del formulario */
+.form-section {
+  margin-top: 30px;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.form-section h2 {
+  font-size: 20px;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.form-section input {
+  width: calc(100% - 20px);
+  margin-bottom: 10px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.form-section button {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.form-section button:hover {
+  background-color: #0056b3;
+}
+
+/* Mensajes de error y carga */
+.error-message {
+  color: #dc3545;
+  font-size: 16px;
+  text-align: center;
+  margin-top: 20px;
+}
+
+.loading-message {
+  font-size: 16px;
+  text-align: center;
+  color: #007bff;
+  margin-top: 20px;
+}
