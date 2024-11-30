@@ -13,6 +13,14 @@ export const getCalificaciones = async (id) => {
 };
 
 // Crear una nueva calificación
+/*
+{
+  "id_alumno": 1,
+  "id_asignatura": 1,
+  "puntaje_alumno": 60
+}
+
+*/
 export const createCalificacion = async (calificacion) => {
     const response = await axios.post("/calificaciones", calificacion);
     return response.data;
