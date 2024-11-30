@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { getAlumnoNotas } from '../services/NotasPage.service.js';
 import "@styles/NotasPage.css";
 
+
 function NotasPage() {
     const [notas, setNotas] = useState([]);
     const [error, setError] = useState(null);

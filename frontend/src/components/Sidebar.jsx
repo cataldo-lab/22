@@ -15,11 +15,7 @@ function Sidebar() {
                         Inicio
                     </NavLink>
                 </li>
-                <li>
-                    <NavLink to="/notas" className={({ isActive }) => (isActive ? "active" : "")}>
-                        Notas
-                    </NavLink>
-                </li>
+                
 
                 {/* Opciones exclusivas para el rol de profesor */}
                 {user?.rol === "profesor" && (
@@ -47,7 +43,7 @@ function Sidebar() {
                     <>
                         <li>
                             <NavLink
-                                to="/mis-notas"
+                                to="/notas"
                                 className={({ isActive }) => (isActive ? "active" : "")}
                             >
                                 Mis Notas

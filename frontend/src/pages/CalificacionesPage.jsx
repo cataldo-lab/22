@@ -7,6 +7,8 @@ import {
     deleteCalificacion,
 } from "@services/calificacionesAPI.service";
 import "@styles/gestionNotas.css";
+import Sidebar from "@components/Sidebar";
+import "@styles/home.css";
 
 function ListaAlumnosPage() {
     const [alumnos, setAlumnos] = useState([]);
@@ -99,6 +101,7 @@ function ListaAlumnosPage() {
 
     return (
         <div className="lista-alumnos-page">
+        <Sidebar />
             <h1>Gestión de Alumnos y Calificaciones</h1>
             {error && <p className="error-message">{error}</p>}
             {loading && <p>Cargando...</p>}

@@ -4,6 +4,9 @@ import {
     getCalificaciones, // Función para obtener calificaciones
 } from "@services/ListaAlumnos.service";
 import "@styles/listaAlumnos.css";
+import Sidebar from "@components/Sidebar";
+import "@styles/home.css";
+
 
 function ListaAlumnoPage() {
     const [alumnos, setAlumnos] = useState([]);
@@ -66,6 +69,7 @@ function ListaAlumnoPage() {
 
     return (
         <div className="lista-alumnos-page">
+        <Sidebar />
             <h1>Lista de Alumnos</h1>
             <ul className="alumnos-list">
                 {alumnos.map((alumno) => (

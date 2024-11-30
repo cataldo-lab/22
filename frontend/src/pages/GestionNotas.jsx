@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import "@styles/gestionNotas.css";
+import Sidebar from "@components/Sidebar";
+import "@styles/home.css"; 
 
 const GestionNotas = () => {
   const [students, setStudents] = useState([]);
@@ -120,6 +122,7 @@ const StudentGrades = ({ grades, studentName, onUpdateGrade, onAddGrade }) => {
 
   return (
     <div className="grades-section">
+      <Sidebar />
       <h2>Notas de {studentName}</h2>
       <table className="grades-table">
         <thead>
