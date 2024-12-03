@@ -2,6 +2,8 @@
 import { useState, useEffect } from "react";
 import { getAlumnoNotas } from '../services/NotasPage.service.js';
 import "@styles/NotasPage.css";
+import Sidebar from "@components/Sidebar";
+import "@styles/sidebar.css";
 
 
 function NotasPage() {
@@ -31,6 +33,7 @@ function NotasPage() {
 
     return (
         <div className="notas-page">
+        <Sidebar />
             <h1>Notas del Alumno</h1>
             <ul className="notas-list">
                 {notas.map((nota, index) => (

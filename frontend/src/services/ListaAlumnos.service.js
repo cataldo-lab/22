@@ -12,6 +12,30 @@ export async function getListaAlumnos() {
 }
 
 export const getCalificaciones = async (id) => {
-    const response = await axios.get(`/calificaciones/alumno/${id}`);
+    try {
+        const response = await axios.get(`/calificaciones/alumno/${id}`);
+        console.log('Respuesta del backend:', response.data);
+        return response.data;
+    }
+    catch (error) {
+        console.error('Error en la solicitud de notas:', error.response.status);
+        throw error; 
+    }
+    
+};
+
+export const postCalificaciones = async (formData) => {
+    const response = await axios.post('/calificaciones', formData);
     return response.data;
 };
+
+export const patchCalificaciones = async (formData) => {
+    const response = await axios.put('/calificaciones', formData);
+    return response.data;
+};
+
+export const deleteCalificaciones = async (id) => {
+    const response = await axios.delete(`/calificaciones/${id}`);
+    return response.data;
+};
+

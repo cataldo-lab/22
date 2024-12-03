@@ -93,3 +93,9 @@
     display: block;
     margin-top: 20px;
 }
+
+.error-error{
+    color: red;
+    font-size: 14px;
+    margin-top: 200px;
+}
