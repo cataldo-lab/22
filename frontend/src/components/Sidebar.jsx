@@ -22,14 +22,6 @@ function Sidebar() {
                     <>
                         <li>
                             <NavLink
-                                to="/calificaciones"
-                                className={({ isActive }) => (isActive ? "active" : "")}
-                            >
-                                Gestionar Notas
-                            </NavLink>
-                        </li>
-                        <li>
-                            <NavLink
                                 to="/lista-alumnos"
                                 className={({ isActive }) => (isActive ? "active" : "")}
                             >

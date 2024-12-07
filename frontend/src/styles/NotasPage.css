@@ -1,13 +1,14 @@
 .notas-page {
-    max-width: 800px;
-    margin: 20px auto;
+    max-width: 1000px;
+    margin: 100px 400px auto;
     font-family: Arial, sans-serif;
     text-align: center;
 }
 
 .notas-list {
+    max-width: 1000px;
     list-style-type: none;
-    padding: 0;
+    padding: 30px;
 }
 
 .nota-item {

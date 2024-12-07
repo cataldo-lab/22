@@ -29,6 +29,11 @@ export const postCalificaciones = async (formData) => {
     return response.data;
 };
 
+
+
+
+
+
 export const patchCalificaciones = async (formData) => {
     const response = await axios.put('/calificaciones', formData);
     return response.data;

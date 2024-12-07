@@ -1,5 +1,6 @@
 /* sidebar.css */
 .sidebar {
+    margin-top: 12px;
     width: 250px;
     height: 100vh;
     background-color: #333;

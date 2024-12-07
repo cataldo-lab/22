@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import {
     getListaAlumnos,
-    getCalificaciones, // Función para obtener calificaciones
+    getCalificaciones,
+    postCalificaciones,
 } from "@services/ListaAlumnos.service";
 import "@styles/listaAlumnos.css";
 import Sidebar from "@components/Sidebar";
 import "@styles/home.css";
-import axios from "axios";
+
 
 
 function ListaAlumnoPage() {
@@ -16,6 +17,7 @@ function ListaAlumnoPage() {
     const [selectedAlumno, setSelectedAlumno] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [isSubmitting, setIsSubmitting] = useState(false); 
     const [mostrarFormulario, setMostrarFormulario] = useState(false);
     const [formData, setFormData] = useState({
         id_alumno: '',
@@ -28,12 +30,21 @@ function ListaAlumnoPage() {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-
+        if (isSubmitting) return;
         try {
-            const response = await axios.post('/calificaciones', formData);
-            console.log('Datos enviados con éxito:', response.data);
+            const response = await postCalificaciones(formData);
+            console.log('Datos enviados con éxito:', response);
+            setFormData({
+                id_alumno: '',
+                id_asignatura: '',
+                puntaje_alumno: '',
+            });
         } catch (error) {
             console.error('Error al enviar los datos:', error);
+            alert('Error al enviar los datos de notas');
+        }finally
+        {
+            setIsSubmitting(false);
         }
     };
 
@@ -87,8 +98,11 @@ function ListaAlumnoPage() {
         else{
             return calificaciones.map((nota) => (
                 <tr key={nota.id_nota}>
+                    <td>{nota.id_alumno}</td>
+                    <td>{nota.id_nota}</td>
                     <td>{nota.nota}</td>
                     <td>{nota.ponderacion_nota}</td>
+                    <td>{nota.id_asignatura}</td>
                     <td>{nota.asignatura.nombre_asignatura}</td>
                 </tr>
             ));
@@ -99,6 +113,10 @@ function ListaAlumnoPage() {
     const toggleFormulario = () => {
         setMostrarFormulario(!mostrarFormulario);
     };
+
+
+   
+
 
     const renderFormulario = () => {
         return (
@@ -153,7 +171,7 @@ function ListaAlumnoPage() {
                 {alumnos.map((alumno) => (
                     <li key={alumno.idAlumno} className="alumno-item">
                         <span>
-                            {alumno.nombre} {alumno.apellido}
+                             {alumno.nombre} {alumno.apellido}
                         </span>
                         <button
                             className="mostrar-notas-btn"
@@ -177,21 +195,61 @@ function ListaAlumnoPage() {
                     <table className="calificaciones-table">
                         <thead>
                             <tr>
+                                <th>Id alumno</th>
+                                <th>Id Nota</th>
                                 <th>Notas</th>
                                 <th>Ponderación</th>
+                                <th>Id Asignatura</th>
                                 <th>Asignatura</th>
                             </tr>
                         </thead>
                         <tbody>{renderNotas()}</tbody>
+                        <div>
+                            <button onClick={" "} className="borrar-notas-btn">
+                                {mostrarFormulario ? "Cerrar" : "-"}
+                            </button>
+                            
+                        </div>
+
                     </table>
                 </div>
+                
+
             )}
             {!selectedAlumno && (
-                <tr>
-                    <td colSpan="3" style={{ textAlign: "center", color: "#888" }}>
-                        Alumno no registra calificaciones
-                    </td>
-                </tr>
+            <div className="calificaciones-section">
+                
+                <h1> </h1>
+
+                <table className="calificaciones-table">
+                        <thead>
+                            <tr>
+                                
+                                <th>Mensaje</th>
+                                
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>El alumno o alumna no registra notas</td>
+                            </tr>
+                        </tbody>
+                        
+                    </table>
+                
+                <button onClick={toggleFormulario} className="agregar-notas-btn">
+                {mostrarFormulario ? "Cerrar" : "+"}
+                </button>
+                {mostrarFormulario && renderFormulario()}
+
+
+                
+                    
+
+                
+
+                
+            </div> 
             )}
         </div>
     );
