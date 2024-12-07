@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import {
     getListaAlumnos,
     getCalificaciones,
+    patchCalificaciones,
     postCalificaciones,
 } from "@services/ListaAlumnos.service";
 import "@styles/listaAlumnos.css";
@@ -24,9 +25,24 @@ function ListaAlumnoPage() {
         id_asignatura: '',
         puntaje_alumno: '',
     });
+    const [patchDataForm, setPatchDataForm] = useState({
+        id_nota: '',
+        id_alumno: '',
+        id_asignatura: '',
+        puntaje_alumno: '',
+    });
+    const [reformularNota, setReformularNota] = useState(false);
+
     const handleChange = (event) => {
         setFormData({ ...formData, [event.target.name]: event.target.value });
     };
+
+    const handlePatchChange = (event) => {
+        setPatchDataForm({ ...patchDataForm, [event.target.name]: event.target.value });
+    };
+    
+    
+    
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -47,6 +63,31 @@ function ListaAlumnoPage() {
             setIsSubmitting(false);
         }
     };
+
+    const handlePatchSubmit = async (event) => {
+        event.preventDefault(); // Evita que se recargue la página al enviar el formulario
+    
+        try {
+            // Llama al servicio y pasa el ID junto con los datos
+            const response = await patchCalificaciones(patchDataForm.id_nota, patchDataForm);
+    
+            console.log("Nota actualizada con éxito:", response);
+    
+            alert("Nota actualizada con éxito.");
+            setFormData({
+                id_nota: '',
+                id_alumno: '',
+                id_asignatura: '',
+                puntaje_alumno: '',
+            }); // Limpia el formulario tras el envío
+        } catch (error) {
+            console.error("Error al actualizar la nota:", error);
+            alert("Error al actualizar la nota. Por favor, intenta nuevamente.");
+        }
+    };
+    
+
+
 
     useEffect(() => {
         async function fetchAlumnos() {
@@ -114,6 +155,9 @@ function ListaAlumnoPage() {
         setMostrarFormulario(!mostrarFormulario);
     };
 
+    const togglePatchFormulario = () => {
+        setReformularNota(!reformularNota);
+    };
 
    
 
@@ -162,6 +206,61 @@ function ListaAlumnoPage() {
     if (loading) return <p>Cargando datos...</p>;
     if (error) return <p className="error-message">{error}</p>;
 
+    const renderReformularNota = () => {
+        return (
+            <div className="agregar-nota">
+                <h2>Cambiar Nota</h2>
+                <form onSubmit={handlePatchSubmit}>
+                    <div>
+                        <label htmlFor="id_nota">Id Nota:</label>
+                        <input
+                            type="text"
+                            id="id_nota"
+                            name="id_nota"
+                            value={patchDataForm.id_nota}
+                            onChange={handlePatchChange}
+                            required
+                        />
+                    </div>
+                    <div>
+                        <label htmlFor="id_alumno">Id Alumno:</label>
+                        <input
+                            type="text"
+                            id="id_alumno"
+                            name="id_alumno"
+                            value={patchDataForm.id_alumno}
+                            onChange={handlePatchChange}
+                            required
+                        />
+                    </div>
+                    <div>
+                        <label htmlFor="id_asignatura">Id Asignatura:</label>
+                        <input
+                            type="number"
+                            id="id_asignatura"
+                            name="id_asignatura"
+                            value={patchDataForm.id_asignatura}
+                            onChange={handlePatchChange}
+                            required
+                        />
+                    </div>
+                    <div>
+                        <label htmlFor="puntaje_alumno">Puntaje:</label>
+                        <input
+                            type="number"
+                            id="puntaje_alumno"
+                            name="puntaje_alumno"
+                            value={patchDataForm.puntaje_alumno}
+                            onChange={handlePatchChange}
+                            required
+                        />
+                    </div>
+                    <button type="submit">Subir</button>
+                </form>
+            </div>
+        );
+    };
+
     return (
         <div className="lista-alumnos-page">
             <Sidebar />
@@ -191,6 +290,14 @@ function ListaAlumnoPage() {
                     <button onClick={toggleFormulario} className="agregar-notas-btn">
                         {mostrarFormulario ? "Cerrar" : "+"}
                     </button>
+                    
+                    <button onClick={" "} className="borrar-notas-btn">
+                        {mostrarFormulario ? "Cerrar" : "-"}
+                    </button>
+                    <button onClick={togglePatchFormulario} className="reformular-notas-btn">
+                        {reformularNota ? "Cerrar" : "*"}
+                    </button>
+
                     {mostrarFormulario && renderFormulario()}
                     <table className="calificaciones-table">
                         <thead>
@@ -204,14 +311,11 @@ function ListaAlumnoPage() {
                             </tr>
                         </thead>
                         <tbody>{renderNotas()}</tbody>
-                        <div>
-                            <button onClick={" "} className="borrar-notas-btn">
-                                {mostrarFormulario ? "Cerrar" : "-"}
-                            </button>
-                            
-                        </div>
+                        
+                       
 
                     </table>
+                    {reformularNota &&renderReformularNota()}
                 </div>
                 
 
