@@ -3,25 +3,33 @@ import { getRepository } from "typeorm";
 import Alumno from "../entity/alumno.entity.js";
 import Asignatura from "../entity/asignatura.entity.js";
 import Evaluado from "../entity/evaluado.entity.js";
+import Usuarios from "../entity/user.entity.js";
 import { AppDataSource } from "../config/configDb.js";
 
 
 
 
-export async function createCalificacionService({ id_alumno, id_asignatura, puntaje_alumno }) {
+export async function createCalificacionService({ rut_alumno, id_asignatura, puntaje_alumno }) {
     try {
+        const usuarioRepository = AppDataSource.getRepository(Usuarios);
         const alumnoRepository = AppDataSource.getRepository(Alumno);
         const asignaturaRepository = AppDataSource.getRepository(Asignatura);
         const evaluadoRepository = AppDataSource.getRepository(Evaluado);
 
-        // Validar existencia de alumno
+        // Buscar el id_alumno por rut
+        const usuario = await usuarioRepository.findOneBy({ rut: rut_alumno });
+        if (!usuario) throw new Error("Alumno no encontrado con el rut proporcionado.");
+
+        const id_alumno = usuario.id_alumno;
+
+        // Validar existencia del alumno
         const alumno = await alumnoRepository.findOneBy({ id_alumno });
-        if (!alumno) throw new Error("Alumno no encontrado.");
+        if (!alumno) throw new Error("Alumno no encontrado en la base de datos.");
 
         // Validar si pertenece al programa PIE
         const tipo_evaluacion = alumno.alumno_Pie ? "PIE" : "ESTÁNDAR";
 
-        // Validar existencia de asignatura
+        // Validar existencia de la asignatura
         const asignatura = await asignaturaRepository.findOneBy({ id_asignatura });
         if (!asignatura) throw new Error("Asignatura no encontrada.");
 
@@ -56,7 +64,7 @@ export async function getCalificacionesByAlumnoIdService(id_alumno) {
 
         const calificaciones = await evaluadoRepository.find({
             where: { id_alumno },
-            relations: ["asignatura", "alumno"],
+            relations: ["asignatura", "alumno"], 
         });
 
         if (calificaciones.length === 0) throw new Error("No se encontraron calificaciones para este alumno.");

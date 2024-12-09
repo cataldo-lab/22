@@ -57,6 +57,7 @@
     border: none;
     border-radius: 4px;
     cursor: pointer;
+    margin-right:2px;
 }
 
 .borrar-notas-btn {
@@ -66,6 +67,7 @@
     border: none;
     border-radius: 4px;
     cursor: pointer;
+    margin: 2px;
 }
 
 .mostrar-notas-btn:hover {
@@ -121,4 +123,81 @@
     border: none;
     border-radius: 4px;
     cursor: pointer;
+    margin: 2px;
+}
+
+.agregar-nota button {
+    background-color: #4caf50; 
+    color: white; 
+    padding: 10px 20px; 
+    border: none; 
+    border-radius: 5px; 
+    cursor: pointer; 
+    font-size: 16px; 
+    transition: background-color 0.3s ease; 
+    margin-top: 5px;
+  }
+  
+  .agregar-nota button:hover {
+    background-color: #45a049; /* Color de fondo al pasar el cursor */
+  }
+
+  .edit-icon {
+    width: 20px;
+    height: 20px;
+    background-image: url("@assets/edit.svg");
+    background-size: contain;
+    background-repeat: no-repeat;
+    cursor: pointer;
+}
+
+.delete-icon {
+    width: 20px;
+    height: 20px;
+    background-image: url("@assets/delete.svg");
+    background-size: contain;
+    background-repeat: no-repeat;
+    cursor: pointer;
+}
+
+
+
+.swal-popup {
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    padding: 20px;
+    font-family: "Arial", sans-serif;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Botón de confirmar */
+.swal-confirm-btn {
+    background-color: #4caf50; /* Verde */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.swal-confirm-btn:hover {
+    background-color: #45a049;
+}
+
+/* Botón de cancelar */
+.swal-cancel-btn {
+    background-color: #f44336; /* Rojo */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.swal-cancel-btn:hover {
+    background-color: #e53935;
 }

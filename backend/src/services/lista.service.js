@@ -27,6 +27,7 @@ export async function getAlumnosPorProfesorService(req) {
         const datos = profesor.asignaturas.flatMap(asignatura =>
             asignatura.alumnos.map(alumno => ({
                 idAlumno: alumno.id_alumno,
+                rut: alumno.usuario.rut,
                 nombre: alumno.usuario.nombre,
                 apellido: alumno.usuario.apellido,
                 nombreAsignatura: asignatura.nombre_asignatura,

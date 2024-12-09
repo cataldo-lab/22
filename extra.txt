@@ -1,0 +1,35 @@
+const renderNotas = () => {
+        if (calificaciones.length === 0) {
+            return (
+                <tr>
+                    <td colSpan="3" style={{ textAlign: "center", color: "#888" }}>
+                        Alumno no registra calificaciones
+                    </td>
+                </tr>
+            );
+        }
+        else{
+            return calificaciones.map((nota) => (
+                <tr key={nota.id_nota}>
+                    
+                    <td>{nota.nota}</td>
+                    <td>{nota.ponderacion_nota}</td>
+                    <td>{nota.id_asignatura}</td>
+                    <td>{nota.asignatura.nombre_asignatura}</td>
+                    <td>
+                    <FaEdit
+                        className="icon edit-icon"
+                        onClick={() => handleEditClick(nota)}
+                        title="Editar"
+                    />
+                    <FaTrash
+                        className="icon delete-icon"
+                        onClick={() => handleDeleteClick(nota.id_nota)}
+                        title="Eliminar"
+                    />
+                </td>
+                </tr>
+            ));
+        }
+        
+    };

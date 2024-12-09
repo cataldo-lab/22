@@ -39,6 +39,8 @@ export const patchCalificaciones = async (formData) => {
     return response.data;
 };
 
+
+
 export const deleteCalificaciones = async (id) => {
     const response = await axios.delete(`/calificaciones/${id}`);
     return response.data;

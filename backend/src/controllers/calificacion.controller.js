@@ -12,10 +12,10 @@ import { handleErrorClient, handleErrorServer, handleSuccess } from "../handlers
 export async function createCalificacion(req, res) {
     try {
         // Extracción de datos del cuerpo de la solicitud
-        const { id_alumno, id_asignatura, puntaje_alumno } = req.body;
+        const { rut_alumno, id_asignatura, puntaje_alumno } = req.body;
 
         // Validación de entrada
-        if (!id_alumno || !id_asignatura || puntaje_alumno === undefined) {
+        if (!rut_alumno || !id_asignatura || puntaje_alumno === undefined) {
             return handleErrorClient(
                 res,
                 400,
@@ -25,7 +25,7 @@ export async function createCalificacion(req, res) {
 
         // Llamar al servicio para crear la calificación
         const [nuevaCalificacion, error] = await createCalificacionService({
-            id_alumno,
+            rut_alumno,
             id_asignatura,
             puntaje_alumno,
         });

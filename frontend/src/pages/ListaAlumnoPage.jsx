@@ -2,12 +2,16 @@ import { useState, useEffect } from "react";
 import {
     getListaAlumnos,
     getCalificaciones,
+    //deleteCalificacion,
     patchCalificaciones,
     postCalificaciones,
 } from "@services/ListaAlumnos.service";
 import "@styles/listaAlumnos.css";
 import Sidebar from "@components/Sidebar";
 import "@styles/home.css";
+import Swal from "sweetalert2";
+
+
 
 
 
@@ -21,7 +25,7 @@ function ListaAlumnoPage() {
     const [isSubmitting, setIsSubmitting] = useState(false); 
     const [mostrarFormulario, setMostrarFormulario] = useState(false);
     const [formData, setFormData] = useState({
-        id_alumno: '',
+        rut_alumno: '',
         id_asignatura: '',
         puntaje_alumno: '',
     });
@@ -41,17 +45,44 @@ function ListaAlumnoPage() {
         setPatchDataForm({ ...patchDataForm, [event.target.name]: event.target.value });
     };
     
+
     
     
 
     const handleSubmit = async (event) => {
         event.preventDefault();
         if (isSubmitting) return;
+
+
+        const { isConfirmed } = await Swal.fire({
+        title: "Confirma los datos ingresados",
+        html: `
+            <p><strong>Rut Alumno:</strong> ${formData.rut_alumno}</p>
+            <p><strong>Asignatura:</strong> ${formData.id_asignatura}</p>
+            <p><strong>Puntaje:</strong> ${formData.puntaje_alumno}</p>
+        `,
+        icon: "info",
+        showCancelButton: true,
+        confirmButtonText: "Confirmar",
+        cancelButtonText: "Cancelar",
+        customClass: {
+            popup: "swal-popup",
+            confirmButton: "swal-confirm-btn",
+            cancelButton: "swal-cancel-btn",
+        },
+    });
+
+    if (!isConfirmed) {
+        Swal.fire("Envío cancelado", "", "error");
+        return;
+    }
+
+
         try {
             const response = await postCalificaciones(formData);
             console.log('Datos enviados con éxito:', response);
             setFormData({
-                id_alumno: '',
+                rut_alumno: '',
                 id_asignatura: '',
                 puntaje_alumno: '',
             });
@@ -65,20 +96,20 @@ function ListaAlumnoPage() {
     };
 
     const handlePatchSubmit = async (event) => {
-        event.preventDefault(); // Evita que se recargue la página al enviar el formulario
+        event.preventDefault(); 
     
         try {
-            // Llama al servicio y pasa el ID junto con los datos
+            
             const response = await patchCalificaciones(patchDataForm.id_nota, patchDataForm);
     
             console.log("Nota actualizada con éxito:", response);
     
             alert("Nota actualizada con éxito.");
             setFormData({
-                id_nota: '',
-                id_alumno: '',
-                id_asignatura: '',
-                puntaje_alumno: '',
+                id_nota: (''),
+                id_alumno: (''),
+                id_asignatura: (''),
+                puntaje_alumno: (''),
             }); // Limpia el formulario tras el envío
         } catch (error) {
             console.error("Error al actualizar la nota:", error);
@@ -139,12 +170,11 @@ function ListaAlumnoPage() {
         else{
             return calificaciones.map((nota) => (
                 <tr key={nota.id_nota}>
-                    <td>{nota.id_alumno}</td>
-                    <td>{nota.id_nota}</td>
+                    
                     <td>{nota.nota}</td>
                     <td>{nota.ponderacion_nota}</td>
-                    <td>{nota.id_asignatura}</td>
                     <td>{nota.asignatura.nombre_asignatura}</td>
+                    
                 </tr>
             ));
         }
@@ -160,7 +190,34 @@ function ListaAlumnoPage() {
     };
 
    
+    /*const handleEditClick = (nota) => {
+        // Mostrar formulario con los datos actuales de la nota
+        setPatchDataForm({
+            id_nota: nota.id_nota,
+            id_alumno: selectedAlumno,
+            id_asignatura: nota.id_asignatura,
+            puntaje_alumno: nota.puntaje_alumno,
+        });
+        setReformularNota(true); // Mostrar formulario de edición
+    };
+    
+    // Manejar clic en el ícono de eliminación
+    const handleDeleteClick = async (idNota) => {
+        if (window.confirm("¿Estás seguro de eliminar esta calificación?")) {
+            try {
+                await deleteCalificacion(idNota);
+                alert("Calificación eliminada con éxito.");
+                setCalificaciones((prev) =>
+                    prev.filter((nota) => nota.id_nota !== idNota)
+                );
+            } catch (error) {
+                console.error("Error al eliminar la calificación:", error);
+                alert("Error al eliminar la calificación.");
+            }
+        }
+    };
 
+*/
 
     const renderFormulario = () => {
         return (
@@ -168,24 +225,29 @@ function ListaAlumnoPage() {
                 <h2>Agregar Nota</h2>
                 <form onSubmit={handleSubmit}>
                     <div>
-                        <label htmlFor="id_alumno">Id Alumno:</label>
+                        <label htmlFor="rut_alumno">Rut Alumno:</label>
                         <input
                             type="text"
-                            id="id_alumno"
-                            name="id_alumno"
-                            value={formData.id_alumno}
+                            id="rut_alumno"
+                            name="rut_alumno"
+                            value={formData.rut_alumno}
                             onChange={handleChange}
                         />
                     </div>
                     <div>
-                        <label htmlFor="id_asignatura">id_asignatura:</label>
-                        <input
-                            type="text"
+                        <label htmlFor="id_asignatura">Asignatura:</label>
+                        <select
                             id="id_asignatura"
                             name="id_asignatura"
                             value={formData.id_asignatura}
                             onChange={handleChange}
-                        />
+                        >
+                        <option value="">Selecciona una asignatura</option>
+                        <option value="1">Matemáticas</option>
+                        <option value="2">Fisica</option>
+                         <option value="3">Quimica</option>
+                        </select>
+                        
                     </div>
                     <div>
                         <label htmlFor="puntaje">puntaje:</label>
@@ -265,12 +327,27 @@ function ListaAlumnoPage() {
         <div className="lista-alumnos-page">
             <Sidebar />
             
-            <h1>Lista de Alumnos</h1>
+           
+            
+            <table className="calificaciones-table">
+                        <thead>
+                            <tr>
+                                
+                                <th>Lista de Alumnos Asigandos</th>
+                                
+                            </tr>
+                        </thead>
+                        <tbody>
+                            
+                        </tbody>
+                        
+                    </table>
+            
             <ul className="alumnos-list">
                 {alumnos.map((alumno) => (
                     <li key={alumno.idAlumno} className="alumno-item">
                         <span>
-                             {alumno.nombre} {alumno.apellido}
+                             {alumno.rut} {alumno.nombre} {alumno.apellido}
                         </span>
                         <button
                             className="mostrar-notas-btn"
@@ -302,11 +379,9 @@ function ListaAlumnoPage() {
                     <table className="calificaciones-table">
                         <thead>
                             <tr>
-                                <th>Id alumno</th>
-                                <th>Id Nota</th>
+                                
                                 <th>Notas</th>
                                 <th>Ponderación</th>
-                                <th>Id Asignatura</th>
                                 <th>Asignatura</th>
                             </tr>
                         </thead>
