@@ -34,15 +34,15 @@ export const postCalificaciones = async (formData) => {
 
 
 
-export const patchCalificaciones = async (formData) => {
-    const response = await axios.put('/calificaciones', formData);
+export const patchCalificaciones = async (id_nota, data) => {
+    const response = await axios.patch(`/calificaciones/${id_nota}`,data);
     return response.data;
 };
 
 
 
-export const deleteCalificaciones = async (id) => {
-    const response = await axios.delete(`/calificaciones/${id}`);
+export const deleteCalificaciones = async (id_nota) => {
+    const response = await axios.delete(`/calificaciones/${id_nota}`);
     return response.data;
 };
 

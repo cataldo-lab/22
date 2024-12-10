@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import {
     getListaAlumnos,
     getCalificaciones,
-    //deleteCalificacion,
+    deleteCalificaciones,
     patchCalificaciones,
     postCalificaciones,
 } from "@services/ListaAlumnos.service";
@@ -29,23 +29,87 @@ function ListaAlumnoPage() {
         id_asignatura: '',
         puntaje_alumno: '',
     });
-    const [patchDataForm, setPatchDataForm] = useState({
+    /*const [patchDataForm, setPatchDataForm] = useState({
         id_nota: '',
         id_alumno: '',
         id_asignatura: '',
         puntaje_alumno: '',
-    });
-    const [reformularNota, setReformularNota] = useState(false);
+    });*/
+    //const [reformularNota, setReformularNota] = useState(false);
 
     const handleChange = (event) => {
         setFormData({ ...formData, [event.target.name]: event.target.value });
     };
 
-    const handlePatchChange = (event) => {
-        setPatchDataForm({ ...patchDataForm, [event.target.name]: event.target.value });
+    //const handlePatchChange = (event) => {
+    //    setPatchDataForm({ ...patchDataForm, [event.target.name]: event.target.value });
+    //};
+    
+    const handleEditClick = (nota) => {
+        Swal.fire({
+            title: "Editar Nota",
+            html: `
+                <label>Puntaje:</label>
+                <input id="swal-input-puntaje" type="number" value="${nota.puntaje_alumno}" />
+            `,
+            preConfirm: () => {
+                const puntaje = document.getElementById("swal-input-puntaje").value;
+                if (!puntaje) {
+                    Swal.showValidationMessage("El puntaje no puede estar vacío");
+                }
+                return { puntaje_alumno: parseInt(puntaje, 10) };
+            },
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    const data = result.value; // Cuerpo JSON con el puntaje actualizado
+    
+                    // Llamada al servicio patchCalificaciones
+                    await patchCalificaciones(nota.id_nota, data);
+    
+                    // Actualizamos el estado local
+                    const updatedCalificaciones = calificaciones.map((n) =>
+                        n.id_nota === nota.id_nota ? { ...n, puntaje_alumno: data.puntaje_alumno } : n
+                    );
+                    setCalificaciones(updatedCalificaciones);
+    
+                    Swal.fire("Nota actualizada con éxito", "", "success");
+                } catch (error) {
+                    console.error("Error al actualizar la nota:", error);
+                    Swal.fire("Error al actualizar la nota", "Por favor, intenta nuevamente.", "error");
+                }
+            }
+        });
     };
     
-
+    
+    const handleDeleteClick = async (id_nota) => {
+        const { isConfirmed } = await Swal.fire({
+            title: "¿Estás seguro?",
+            text: "No podrás recuperar esta nota",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Sí, eliminar",
+            cancelButtonText: "Cancelar",
+        });
+    
+        if (isConfirmed) {
+            try {
+                // Llamada al servicio deleteCalificaciones
+                await deleteCalificaciones(id_nota);
+    
+                // Actualizamos el estado local
+                const updatedCalificaciones = calificaciones.filter((n) => n.id_nota !== id_nota);
+                setCalificaciones(updatedCalificaciones);
+    
+                Swal.fire("Nota eliminada con éxito", "", "success");
+            } catch (error) {
+                console.error("Error al eliminar la nota:", error);
+                Swal.fire("Error al eliminar la nota", "Por favor, intenta nuevamente.", "error");
+            }
+        }
+    };
+    
     
     
 
@@ -95,28 +159,6 @@ function ListaAlumnoPage() {
         }
     };
 
-    const handlePatchSubmit = async (event) => {
-        event.preventDefault(); 
-    
-        try {
-            
-            const response = await patchCalificaciones(patchDataForm.id_nota, patchDataForm);
-    
-            console.log("Nota actualizada con éxito:", response);
-    
-            alert("Nota actualizada con éxito.");
-            setFormData({
-                id_nota: (''),
-                id_alumno: (''),
-                id_asignatura: (''),
-                puntaje_alumno: (''),
-            }); // Limpia el formulario tras el envío
-        } catch (error) {
-            console.error("Error al actualizar la nota:", error);
-            alert("Error al actualizar la nota. Por favor, intenta nuevamente.");
-        }
-    };
-    
 
 
 
@@ -170,11 +212,27 @@ function ListaAlumnoPage() {
         else{
             return calificaciones.map((nota) => (
                 <tr key={nota.id_nota}>
-                    
-                    <td>{nota.nota}</td>
-                    <td>{nota.ponderacion_nota}</td>
                     <td>{nota.asignatura.nombre_asignatura}</td>
+                    <td>{nota.puntaje_alumno}</td>
+                    <td>{nota.nota}</td>
                     
+                    <td>
+                    <button
+                        className="edit-notas-btn"
+                        onClick={() => handleEditClick(nota)}
+                    >
+                        Editar
+                    </button>
+                    <button
+                        className="delete-notas-btn"
+                        onClick={() => handleDeleteClick(nota.id_nota)}
+                    >
+                        Eliminar
+                    </button>
+
+
+                   
+                </td>
                 </tr>
             ));
         }
@@ -185,39 +243,11 @@ function ListaAlumnoPage() {
         setMostrarFormulario(!mostrarFormulario);
     };
 
-    const togglePatchFormulario = () => {
-        setReformularNota(!reformularNota);
-    };
-
    
-    /*const handleEditClick = (nota) => {
-        // Mostrar formulario con los datos actuales de la nota
-        setPatchDataForm({
-            id_nota: nota.id_nota,
-            id_alumno: selectedAlumno,
-            id_asignatura: nota.id_asignatura,
-            puntaje_alumno: nota.puntaje_alumno,
-        });
-        setReformularNota(true); // Mostrar formulario de edición
-    };
-    
-    // Manejar clic en el ícono de eliminación
-    const handleDeleteClick = async (idNota) => {
-        if (window.confirm("¿Estás seguro de eliminar esta calificación?")) {
-            try {
-                await deleteCalificacion(idNota);
-                alert("Calificación eliminada con éxito.");
-                setCalificaciones((prev) =>
-                    prev.filter((nota) => nota.id_nota !== idNota)
-                );
-            } catch (error) {
-                console.error("Error al eliminar la calificación:", error);
-                alert("Error al eliminar la calificación.");
-            }
-        }
-    };
+   
+  
 
-*/
+
 
     const renderFormulario = () => {
         return (
@@ -268,7 +298,7 @@ function ListaAlumnoPage() {
     if (loading) return <p>Cargando datos...</p>;
     if (error) return <p className="error-message">{error}</p>;
 
-    const renderReformularNota = () => {
+   /* const renderReformularNota = () => {
         return (
             <div className="agregar-nota">
                 <h2>Cambiar Nota</h2>
@@ -321,7 +351,7 @@ function ListaAlumnoPage() {
                 </form>
             </div>
         );
-    };
+    };*/
 
     return (
         <div className="lista-alumnos-page">
@@ -368,21 +398,15 @@ function ListaAlumnoPage() {
                         {mostrarFormulario ? "Cerrar" : "+"}
                     </button>
                     
-                    <button onClick={" "} className="borrar-notas-btn">
-                        {mostrarFormulario ? "Cerrar" : "-"}
-                    </button>
-                    <button onClick={togglePatchFormulario} className="reformular-notas-btn">
-                        {reformularNota ? "Cerrar" : "*"}
-                    </button>
 
                     {mostrarFormulario && renderFormulario()}
                     <table className="calificaciones-table">
                         <thead>
                             <tr>
-                                
-                                <th>Notas</th>
-                                <th>Ponderación</th>
                                 <th>Asignatura</th>
+                                <th>Puntaje Alumno</th>
+                                <th>Notas</th>
+                                <th>Acciones</th>
                             </tr>
                         </thead>
                         <tbody>{renderNotas()}</tbody>
@@ -390,7 +414,7 @@ function ListaAlumnoPage() {
                        
 
                     </table>
-                    {reformularNota &&renderReformularNota()}
+                    {/*reformularNota &&renderReformularNota()*/}
                 </div>
                 
 

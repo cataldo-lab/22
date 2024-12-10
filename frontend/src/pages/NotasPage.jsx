@@ -1,25 +1,36 @@
-// src/pages/NotasPage.js
+// src/pages/NotasPage.jsx
 import { useState, useEffect } from "react";
-import { getAlumnoNotas } from '../services/NotasPage.service.js';
+import { getAlumnoNotas } from "../services/NotasPage.service.js";
 import "@styles/NotasPage.css";
 import Sidebar from "@components/Sidebar";
 import "@styles/sidebar.css";
-
+import React from "react";
 
 function NotasPage() {
     const [notas, setNotas] = useState([]);
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
 
+    // Función para agrupar las notas por asignatura
+    const groupNotasByAsignatura = (notas) => {
+        return notas.reduce((groups, nota) => {
+            const asignatura = nota.asignatura?.nombre_asignatura || "Sin Asignatura";
+            if (!groups[asignatura]) {
+                groups[asignatura] = [];
+            }
+            groups[asignatura].push(nota);
+            return groups;
+        }, {});
+    };
+
     useEffect(() => {
         async function fetchNotas() {
             try {
                 const data = await getAlumnoNotas(); // Llamada al servicio
-                console.log('Notas recibidas:', data); // Depuración
                 setNotas(data);
             } catch (err) {
-                console.error('Error al cargar notas:', err); // Muestra errores en consola
-                setError('No se pudieron cargar las notas.');
+                console.error("Error al cargar notas:", err);
+                setError("No se pudieron cargar las notas.");
             } finally {
                 setLoading(false);
             }
@@ -28,23 +39,51 @@ function NotasPage() {
         fetchNotas();
     }, []);
 
-    if (loading) return <p>Cargando notas...</p>;
-    if (error) return <p>{error}</p>;
+    const groupedNotas = groupNotasByAsignatura(notas); // Agrupar notas aquí
 
     return (
         <div className="notas-page">
-        <Sidebar />
+            <Sidebar />
             <h1>Notas del Alumno</h1>
-            <ul className="notas-list">
-                {notas.map((nota, index) => (
-                    <li key={index} className="nota-item">
-                        <p>Asignatura: <strong>{nota.asignatura?.nombre_asignatura}</strong></p>
-                        <p>Nota: <strong>{nota.nota}</strong></p>
-                        <p>Ponderación: <strong>{nota.ponderacion_nota}</strong></p>
-                        <p>Puntaje: <strong>{nota.puntaje_alumno}</strong></p>
-                    </li>
-                ))}
-            </ul>
+
+            {/* Renderizado condicional con corto circuito */}
+            {loading && <p>Cargando notas...</p>}
+            {error && <p className="error-message">{error}</p>}
+
+            {/* Mostrar tabla solo si no hay errores y no está cargando */}
+            {!loading && !error && (
+                <table className="notas-table">
+                    <thead>
+                        <tr>
+                            <th>Asignatura</th>
+                            <th>Nota</th>
+                            <th>Ponderación</th>
+                            <th>Puntaje</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {Object.entries(groupedNotas).map(([asignatura, notas]) => (
+                            <React.Fragment key={asignatura}>
+                                {/* Encabezado de la asignatura */}
+                                <tr className="asignatura-header">
+                                    <td colSpan="4">
+                                        <strong>{asignatura}</strong>
+                                    </td>
+                                </tr>
+                                {/* Filas de notas */}
+                                {notas.map((nota, index) => (
+                                    <tr key={index}>
+                                        <td></td> {/* Columna vacía para alineación */}
+                                        <td>{nota.nota || "N/A"}</td>
+                                        <td>{nota.ponderacion_nota || "N/A"}</td>
+                                        <td>{nota.puntaje_alumno || "N/A"}</td>
+                                    </tr>
+                                ))}
+                            </React.Fragment>
+                        ))}
+                    </tbody>
+                </table>
+            )}
         </div>
     );
 }

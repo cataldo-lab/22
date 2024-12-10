@@ -46,16 +46,15 @@ export async function createCalificacion(req, res) {
 //No tocar
 export async function updateCalificacion(req, res) {
     try {
-        const { id_nota, id_alumno, id_asignatura, puntaje_alumno } = req.body;
+        const { id_nota } = req.params;
+        const { puntaje_alumno } = req.body;
 
-        if (!id_nota || !id_alumno || !id_asignatura || puntaje_alumno === undefined) {
+        if (!id_nota || puntaje_alumno === undefined) {
             return res.status(400).json({ mensaje: "Faltan datos requeridos: " });
         }
 
         const [calificacionActualizada, error] = await updateCalificacionService({
             id_nota,
-            id_alumno,
-            id_asignatura,
             puntaje_alumno,
         });
 

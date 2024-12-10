@@ -17,7 +17,7 @@ router.use(authenticateJwt);
 
 router.get("/alumno/:id_alumno", authorizeRoles("alumno", "profesor"), getCalificacionesByAlumnoId);
 router.post("/", authorizeRoles("profesor"), createCalificacion);
-router.patch("/", authorizeRoles("profesor"), updateCalificacion);
+router.patch("/:id_nota", authorizeRoles("profesor"), updateCalificacion);
 router.delete("/:id_nota", authorizeRoles("profesor"), deleteCalificacion);
 
 
