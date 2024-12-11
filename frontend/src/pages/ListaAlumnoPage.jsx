@@ -10,7 +10,9 @@ import "@styles/listaAlumnos.css";
 import Sidebar from "@components/Sidebar";
 import "@styles/home.css";
 import Swal from "sweetalert2";
-
+import "@styles/navBar.css"
+import "@styles/home.css";
+//import NavBar from "@components/NavBar";
 
 
 
@@ -29,21 +31,13 @@ function ListaAlumnoPage() {
         id_asignatura: '',
         puntaje_alumno: '',
     });
-    /*const [patchDataForm, setPatchDataForm] = useState({
-        id_nota: '',
-        id_alumno: '',
-        id_asignatura: '',
-        puntaje_alumno: '',
-    });*/
-    //const [reformularNota, setReformularNota] = useState(false);
+   
 
     const handleChange = (event) => {
         setFormData({ ...formData, [event.target.name]: event.target.value });
     };
 
-    //const handlePatchChange = (event) => {
-    //    setPatchDataForm({ ...patchDataForm, [event.target.name]: event.target.value });
-    //};
+    
     
     const handleEditClick = (nota) => {
         Swal.fire({
@@ -74,9 +68,11 @@ function ListaAlumnoPage() {
                     setCalificaciones(updatedCalificaciones);
     
                     Swal.fire("Nota actualizada con éxito", "", "success");
+                    
                 } catch (error) {
                     console.error("Error al actualizar la nota:", error);
                     Swal.fire("Error al actualizar la nota", "Por favor, intenta nuevamente.", "error");
+                    
                 }
             }
         });
@@ -103,6 +99,7 @@ function ListaAlumnoPage() {
                 setCalificaciones(updatedCalificaciones);
     
                 Swal.fire("Nota eliminada con éxito", "", "success");
+                
             } catch (error) {
                 console.error("Error al eliminar la nota:", error);
                 Swal.fire("Error al eliminar la nota", "Por favor, intenta nuevamente.", "error");
@@ -198,7 +195,7 @@ function ListaAlumnoPage() {
             setLoading(false);
         }
     };
-    //console.log(fetchNotasAlumno.then(res=>res.json()).then(data=>console.log(data)));
+    
     const renderNotas = () => {
         if (calificaciones.length === 0) {
             return (
@@ -298,64 +295,13 @@ function ListaAlumnoPage() {
     if (loading) return <p>Cargando datos...</p>;
     if (error) return <p className="error-message">{error}</p>;
 
-   /* const renderReformularNota = () => {
-        return (
-            <div className="agregar-nota">
-                <h2>Cambiar Nota</h2>
-                <form onSubmit={handlePatchSubmit}>
-                    <div>
-                        <label htmlFor="id_nota">Id Nota:</label>
-                        <input
-                            type="text"
-                            id="id_nota"
-                            name="id_nota"
-                            value={patchDataForm.id_nota}
-                            onChange={handlePatchChange}
-                            required
-                        />
-                    </div>
-                    <div>
-                        <label htmlFor="id_alumno">Id Alumno:</label>
-                        <input
-                            type="text"
-                            id="id_alumno"
-                            name="id_alumno"
-                            value={patchDataForm.id_alumno}
-                            onChange={handlePatchChange}
-                            required
-                        />
-                    </div>
-                    <div>
-                        <label htmlFor="id_asignatura">Id Asignatura:</label>
-                        <input
-                            type="number"
-                            id="id_asignatura"
-                            name="id_asignatura"
-                            value={patchDataForm.id_asignatura}
-                            onChange={handlePatchChange}
-                            required
-                        />
-                    </div>
-                    <div>
-                        <label htmlFor="puntaje_alumno">Puntaje:</label>
-                        <input
-                            type="number"
-                            id="puntaje_alumno"
-                            name="puntaje_alumno"
-                            value={patchDataForm.puntaje_alumno}
-                            onChange={handlePatchChange}
-                            required
-                        />
-                    </div>
-                    <button type="submit">Subir</button>
-                </form>
-            </div>
-        );
-    };*/
+   
 
     return (
         <div className="lista-alumnos-page">
             <Sidebar />
+
+            
             
            
             
@@ -390,7 +336,7 @@ function ListaAlumnoPage() {
             </ul>
 
             {selectedAlumno && (
-                
+               
                 <div className="calificaciones-section">
                 
                     <h2>Notas del Alumno</h2>

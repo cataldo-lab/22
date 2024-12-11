@@ -5,63 +5,73 @@ import useRegister from '@hooks/auth/useRegister.jsx';
 import { showErrorAlert, showSuccessAlert } from '@helpers/sweetAlert.js';
 import '@styles/form.css';
 
+// Función para transformar el RUT
+const formatRutToPlain = (rut) => rut.replace(/\./g, ''); // Elimina los puntos del RUT
+
 const Register = () => {
-	const navigate = useNavigate();
-	const {
+    const navigate = useNavigate();
+    const {
         errorEmail,
         errorRut,
         errorData,
         handleInputChange
     } = useRegister();
 
-const registerSubmit = async (data) => {
-    try {
-        const response = await register(data);
-        if (response.status === 'Success') {
-            showSuccessAlert('¡Registrado!','Usuario registrado exitosamente.');
-            setTimeout(() => {
-                navigate('/auth');
-            }, 3000)
-        } else if (response.status === 'Client error') {
-            errorData(response.details);
+    const registerSubmit = async (data) => {
+        try {
+            // Formatear el RUT antes de enviar los datos
+            const formattedData = {
+                ...data,
+                rut: formatRutToPlain(data.rut), // Aplica la transformación al campo 'rut'
+            };
+
+            const response = await register(formattedData);
+
+            if (response.status === 'Success') {
+                showSuccessAlert('¡Registrado!', 'Usuario registrado exitosamente.');
+                setTimeout(() => {
+                    navigate('/auth');
+                }, 3000);
+            } else if (response.status === 'Client error') {
+                errorData(response.details);
+            }
+        } catch (error) {
+            console.error("Error al registrar un usuario: ", error);
+            showErrorAlert('Cancelado', 'Ocurrió un error al registrarse.');
         }
-    } catch (error) {
-        console.error("Error al registrar un usuario: ", error);
-        showErrorAlert('Cancelado', 'Ocurrió un error al registrarse.');
-    }
-}
+    };
 
-const patternRut = new RegExp(/^(?:(?:[1-9]\d{0}|[1-2]\d{1})(\.\d{3}){2}|[1-9]\d{6}|[1-2]\d{7}|29\.999\.999|29999999)-[\dkK]$/)
+    const patternRut = new RegExp(/^(?:(?:[1-9]\d{0}|[1-2]\d{1})(\.\d{3}){2}|[1-9]\d{6}|[1-2]\d{7}|29\.999\.999|29999999)-[\dkK]$/);
 
-	return (
-		<main className="container">
-			<Form
-				title="Crea tu cuenta"
-				fields={[
-					{
-						label: "Nombre",
-						name: "nombre",
-						placeholder: "Benjamin Eduardo",
-                        fieldType: 'input',
-						type: "text",
-						required: true,
-						minLength: 3,
-						maxLength: 50,
-                        pattern: /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/,
-						patternMessage: "Debe contener solo letras y espacios",
-					},
+    return (
+        <main className="container">
+            <Form
+                title="Crea tu cuenta"
+                fields={[
                     {
-						label: "Apellido",
-						name: "apellido",
-						placeholder: "Lopez Perez",
+                        label: "Nombre",
+                        name: "nombre",
+                        placeholder: "Benjamin Eduardo",
                         fieldType: 'input',
-						type: "text",
-						required: true,
-						minLength: 3,
-						maxLength: 50,
+                        type: "text",
+                        required: true,
+                        minLength: 3,
+                        maxLength: 50,
                         pattern: /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/,
-						patternMessage: "Debe contener solo letras y espacios",
-					},
+                        patternMessage: "Debe contener solo letras y espacios",
+                    },
+                    {
+                        label: "Apellido",
+                        name: "apellido",
+                        placeholder: "Lopez Perez",
+                        fieldType: 'input',
+                        type: "text",
+                        required: true,
+                        minLength: 3,
+                        maxLength: 50,
+                        pattern: /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/,
+                        patternMessage: "Debe contener solo letras y espacios",
+                    },
                     {
                         label: "Correo electrónico",
                         name: "email",
@@ -78,16 +88,16 @@ const patternRut = new RegExp(/^(?:(?:[1-9]\d{0}|[1-2]\d{1})(\.\d{3}){2}|[1-9]\d
                         onChange: (e) => handleInputChange('email', e.target.value)
                     },
                     {
-						label: "Rut",
+                        label: "Rut",
                         name: "rut",
                         placeholder: "11.111.111-1",
                         fieldType: 'input',
                         type: "text",
-						minLength: 9,
-						maxLength: 12,
-						pattern: patternRut,
-						patternMessage: "Debe ser xx.xxx.xxx-x o xxxxxxxx-x",
-						required: true,
+                        minLength: 9,
+                        maxLength: 12,
+                        pattern: patternRut,
+                        patternMessage: "Debe ser xx.xxx.xxx-x o xxxxxxxx-x",
+                        required: true,
                         errorMessageData: errorRut,
                         onChange: (e) => handleInputChange('rut', e.target.value)
                     },
@@ -103,17 +113,27 @@ const patternRut = new RegExp(/^(?:(?:[1-9]\d{0}|[1-2]\d{1})(\.\d{3}){2}|[1-9]\d
                         pattern: /^[a-zA-Z0-9]+$/,
                         patternMessage: "Debe contener solo letras y números",
                     },
-				]}
-				buttonText="Registrarse"
-				onSubmit={registerSubmit}
-				footerContent={
-					<p>
-						¿Ya tienes cuenta?, <a href="/auth">¡Inicia sesión aquí!</a>
-					</p>
-				}
-			/>
-		</main>
-	);
+                    {
+                        label: "Rol",
+                        name: "rol",
+                        fieldType: 'select',
+                        options: [
+                            { value: 'alumno', text: 'Alumno' },
+                            { value: 'profesor', text: 'Profesor' }
+                        ],
+                        required: true,
+                    }
+                ]}
+                buttonText="Registrarse"
+                onSubmit={registerSubmit}
+                footerContent={
+                    <p>
+                        ¿Ya tienes cuenta?, <a href="/auth">¡Inicia sesión aquí!</a>
+                    </p>
+                }
+            />
+        </main>
+    );
 };
 
 export default Register;

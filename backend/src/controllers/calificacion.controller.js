@@ -7,21 +7,39 @@ import {
     updateCalificacionService,
 } from "../services/calificacion.service.js";
 import { handleErrorClient, handleErrorServer, handleSuccess } from "../handlers/responseHandlers.js";
+import { 
+    createCalificacionSchema,
+    deleteCalificacionSchema, 
+    updateCalificacionSchema, 
+} from "../validations/calificacion.validation.js";
+
+const validateRequest = (schema, data, res) => {
+    const { error } = schema.validate(data, { abortEarly: false });
+    if (error) {
+        const errors = error.details.map((detail) => detail.message);
+        handleErrorClient(res, 400, errors.join(", "));
+        return false;
+    }
+    return true;
+};
+
+
 
 // Crear una calificaci      n
 export async function createCalificacion(req, res) {
     try {
-        // Extracción de datos del cuerpo de la solicitud
+        
+        if (!validateRequest(createCalificacionSchema, req.body, res)) return;
         const { rut_alumno, id_asignatura, puntaje_alumno } = req.body;
 
-        // Validación de entrada
+        /*
         if (!rut_alumno || !id_asignatura || puntaje_alumno === undefined) {
             return handleErrorClient(
                 res,
                 400,
                 "Faltan datos requeridos: id_alumno, id_asignatura o puntaje_alumno."
             );
-        }
+        }*/
 
         // Llamar al servicio para crear la calificación
         const [nuevaCalificacion, error] = await createCalificacionService({
@@ -49,9 +67,13 @@ export async function updateCalificacion(req, res) {
         const { id_nota } = req.params;
         const { puntaje_alumno } = req.body;
 
-        if (!id_nota || puntaje_alumno === undefined) {
-            return res.status(400).json({ mensaje: "Faltan datos requeridos: " });
+        if (puntaje_alumno < 10 || puntaje_alumno > 70) {
+            return res.status(400).json({
+                mensaje: "El puntaje debe estar entre 10 y 70.",
+            });
         }
+
+        
 
         const [calificacionActualizada, error] = await updateCalificacionService({
             id_nota,
@@ -80,9 +102,13 @@ export async function deleteCalificacion(req, res) {
         const { id_nota } = req.params;
 
         
+        //if (!validateRequest(deleteCalificacionSchema, data, res)) return;
+
+        
         if (!id_nota) {
             return handleErrorClient(res, 400, "El ID de la calificación es requerido.");
         }
+        
 
         
         const [calificacionEliminada, error] = await deleteCalificacionService(id_nota);

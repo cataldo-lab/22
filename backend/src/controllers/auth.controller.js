@@ -75,7 +75,7 @@ export async function logout(req, res) {
 
 export function generarTokenAlumno(alumno) {
   const payload = {
-      id_alumno: alumno.id_alumno, // Incluye el ID del alumno
+      id_alumno: alumno.id_alumno, 
       email: alumno.email,
       rut: alumno.rut,
       rol: alumno.rol,

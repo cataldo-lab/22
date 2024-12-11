@@ -3,8 +3,6 @@ import Joi from "joi";
 
 
 
-
-
 const rutValidator = Joi.string()
     .min(9)
     .max(12)
@@ -24,41 +22,35 @@ const idNotaValidator = Joi.string()
         "any.required": "El ID de la calificación es obligatorio.",
     });
 
-// Esquema de validación para crear y actualizar calificaciones
-export const calificacionValidation = Joi.object({
-    alumnoRut: rutValidator,
-    asignaturaRut: rutValidator,
-    calificacion: Joi.number().min(1).max(7).required().messages({
+
+
+export const createCalificacionSchema = Joi.object({
+    rut_alumno: rutValidator,
+    id_asignatura: Joi.number().min(1).max(3).integer().required().messages({
+        "number.base": "El ID de la asignatura debe ser un número válido.",
+        "any.required": "El ID de la asignatura es obligatorio.",
+    }),
+    puntaje_alumno: Joi.number().min(10).max(70).integer().required().messages({
+        "number.base": "El puntaje del alumno debe ser un número.",
+        "number.min": "El puntaje mínimo es 10.",
+        "number.max": "El puntaje máximo es 70.",
+        "any.required": "El puntaje del alumno es obligatorio.",
+    }),
+});
+
+// Validación para actualización de calificaciones
+export const updateCalificacionSchema = Joi.object({
+    calificacion: Joi.number().min(10).max(70).required().messages({
         "number.base": "La calificación debe ser un número.",
         "number.min": "La calificación mínima es 1.",
         "number.max": "La calificación máxima es 7.",
         "any.required": "La calificación es obligatoria.",
     }),
-    fecha: Joi.date().required().messages({
-        "date.base": "La fecha debe ser una fecha válida.",
-        "any.required": "La fecha es obligatoria.",
-    }),
+    
 });
 
-
-export const calificacionUpdateValidation = Joi.object({
-    alumnoRut: rutValidator,
-    idNota: idNotaValidator,
-    asignaturaRut: rutValidator,
-    calificacion: Joi.number().min(1).max(7).required().messages({
-        "number.base": "La calificación debe ser un número.",
-        "number.min": "La calificación mínima es 1.",
-        "number.max": "La calificación máxima es 7.",
-        "any.required": "La calificación es obligatoria.",
-    }),
-    fecha: Joi.date().required().messages({
-        "date.base": "La fecha debe ser una fecha válida.",
-        "any.required": "La fecha es obligatoria.",
-    }),
-});
-
-
-export const calificacionDeleteValidation = Joi.object({
+// Validación para eliminación de calificaciones
+export const deleteCalificacionSchema = Joi.object({
     alumnoRut: rutValidator,
     idNota: idNotaValidator,
     asignaturaRut: rutValidator,

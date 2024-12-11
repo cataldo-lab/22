@@ -46,7 +46,7 @@
 		color: #003366; /*Color del titulo del formulario*/
 		font-size: 30px;
 		font-weight: bold;
-		margin: 0;
+		margin: 0px;
 		margin-bottom: 4vh;
 	}
 	div {
@@ -84,33 +84,42 @@
 	}
 	select {
 		display: flex;
-		border: 3px solid #003366; /*Color del borde de selects del formulario*/
+		border: 3px solid #003366; /* Color del borde */
 		border-radius: 12px;
 		padding: 8px 5px;
-		background-repeat: no-repeat;
-		margin-bottom: 0.8vh;
-		background-color: #eef7ff;
-		font-weight: regular;
-		font-size: 16px;
-		color: #003366;
-		border-radius: 12px;
-		background-position: right 30px center;
-		background-size: 25px 25px;
+		margin-bottom: 1vh;
+		background-color: #eef7ff; /* Fondo del select */
+		font-weight: 500;
+		font-size: 16px; /* Tamaño del texto */
+		color: #003366; /* Color del texto */
 		box-sizing: border-box;
-		background-image: url('../assets/ChevronDownIcon.svg');
+		background-image: url('../assets/ChevronDownIcon.svg'); /* Ícono de dropdown */
 		background-repeat: no-repeat;
 		background-position: calc(100% - 12px) center;
-		-webkit-appearance: none;
-		-moz-appearance: none;
-		appearance: none;
+		appearance: none; 
+		width: 100%; 
+		
 	}
+	
+	/* Estilo de las opciones dentro del <select> */
+	select option {
+		color: #003366; /* Color del texto de las opciones */
+		background-color: #eef7ff; /* Fondo transparente */
+		font-weight: 500; /* Fuente semi-negrita */
+		font-size: 16px; /* Tamaño del texto */
+		padding: 8px; /* Espaciado interno */
+	}
+	
+	/* Placeholder estilo (si es compatible con el navegador) */
 	select::placeholder {
 		color: rgba(0, 51, 102, 0.3);
-		font-weight: light;
+		font-weight: 300; /* Fuente ligera */
 	}
+	
+	/* Efecto al hacer focus en el <select> */
 	select:focus {
-		background-color: rgba(0, 110, 223, 0.14);
-		font-weight: regular;
+		background-color: rgba(0, 110, 223, 0.14); /* Color más claro en el focus */
+		outline: none; /* Elimina el contorno predeterminado del navegador */
 	}
 	textarea {
 		display: flex;
@@ -180,12 +189,15 @@
 }
 
 .container {
-	height: 100vh;	
-	background: linear-gradient(90deg, #003366, #001a33); /*Color principal para login (gradiente)*/
+	min-height: 100vh;
+	background: linear-gradient(90deg, #003366, #001a33); 
 	display: flex;
 	justify-content: center;
 	align-items: center;
+	
 }
+
+
 
 input[type='email'] {
 	background-image: url('../assets/MentionIcon.svg');
@@ -195,7 +207,11 @@ input[name='rut'] {
 	background-image: url('../assets/IdentityCardIcon.svg');
 }
 
-input[name='nombreCompleto'] {
+input[name='nombre'] {
+	background-image: url('../assets/PersonIcon.svg');
+}
+
+input[name='apellido']{
 	background-image: url('../assets/PersonIcon.svg');
 }
 
