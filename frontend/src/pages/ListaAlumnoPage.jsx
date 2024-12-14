@@ -41,6 +41,7 @@ function ListaAlumnoPage() {
 
     const handleChange = (event) => {
         setFormData({ ...formData, [event.target.name]: event.target.value });
+        
     };
 
     
