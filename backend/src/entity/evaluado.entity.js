@@ -44,6 +44,10 @@ const EvaluadoSchema = new EntitySchema({
       type: "int",
       nullable: false,
     },
+    puntaje_total: {
+      type: "int",
+      nullable: true,
+    },
 
     createdAt: {
       type: "timestamp with time zone",

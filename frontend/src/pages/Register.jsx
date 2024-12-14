@@ -23,6 +23,7 @@ const Register = () => {
             const formattedData = {
                 ...data,
                 rut: formatRutToPlain(data.rut), // Aplica la transformación al campo 'rut'
+                rol: 'alumno',
             };
 
             const response = await register(formattedData);
@@ -113,16 +114,7 @@ const Register = () => {
                         pattern: /^[a-zA-Z0-9]+$/,
                         patternMessage: "Debe contener solo letras y números",
                     },
-                    {
-                        label: "Rol",
-                        name: "rol",
-                        fieldType: 'select',
-                        options: [
-                            { value: 'alumno', text: 'Alumno' },
-                            { value: 'profesor', text: 'Profesor' }
-                        ],
-                        required: true,
-                    }
+                   
                 ]}
                 buttonText="Registrarse"
                 onSubmit={registerSubmit}

@@ -9,7 +9,7 @@ import { AppDataSource } from "../config/configDb.js";
 
 
 
-export async function createCalificacionService({ rut_alumno, id_asignatura, puntaje_alumno }) {
+export async function createCalificacionService({ rut_alumno, id_asignatura, puntaje_alumno, puntaje_total }) {
     try {
         const usuarioRepository = AppDataSource.getRepository(Usuarios);
         const alumnoRepository = AppDataSource.getRepository(Alumno);
@@ -34,10 +34,15 @@ export async function createCalificacionService({ rut_alumno, id_asignatura, pun
         if (!asignatura) throw new Error("Asignatura no encontrada.");
 
         // Calcular la nota
-        const puntaje_total = 70;
-        const ponderacion = tipo_evaluacion === "PIE" ? 0.5 : 0.6;
-        const porcentaje_logrado = (puntaje_alumno / puntaje_total) * 100;
-        let nota = ((porcentaje_logrado - (ponderacion * 10)) / (100 - (ponderacion * 10))) * 6 + 1;
+        
+        const exigencia = tipo_evaluacion === "PIE" ? 0.5 : 0.6;
+        const porcentaje_logrado = (puntaje_alumno / puntaje_total)*100;
+        const umbral_exigencia = exigencia * 10;
+        const escala_logro = 100 - umbral_exigencia;
+        let nota = ((porcentaje_logrado - umbral_exigencia) / escala_logro) * 6 + 1;
+        nota = Math.max(1, Math.min(7, nota));
+
+        //let nota = ((porcentaje_logrado - (exigencia * 10)) / (100 - (exigencia * 10))) * 6 + 1;
         nota = parseFloat(nota.toFixed(2));
 
         // Crear y guardar la calificación
@@ -46,6 +51,7 @@ export async function createCalificacionService({ rut_alumno, id_asignatura, pun
             id_asignatura,
             tipo_evaluacion,
             puntaje_alumno,
+            puntaje_total,
             nota,
             fecha: new Date(),
         });
@@ -76,7 +82,7 @@ export async function getCalificacionesByAlumnoIdService(id_alumno) {
     }
 }
 
-export async function updateCalificacionService({ id_nota, id_alumno, id_asignatura, puntaje_alumno }) {
+export async function updateCalificacionService({ id_nota, id_alumno, id_asignatura, puntaje_alumno, puntaje_total }) {
     try {
         const alumnoRepository = AppDataSource.getRepository(Alumno);
         const asignaturaRepository = AppDataSource.getRepository(Asignatura);
@@ -98,11 +104,15 @@ export async function updateCalificacionService({ id_nota, id_alumno, id_asignat
         if (!asignatura) throw new Error("Asignatura no encontrada.");
 
         // Calcular la nota
-        const puntaje_total = 70;
-        const ponderacion = tipo_evaluacion === "PIE" ? 0.5 : 0.6;
-        const porcentaje_logrado = (puntaje_alumno / puntaje_total) * 100;
-        let nuevaNota = ((porcentaje_logrado - (ponderacion * 10)) / (100 - (ponderacion * 10))) * 6 + 1;
-        nuevaNota = parseFloat(nuevaNota.toFixed(2));
+        const exigencia = tipo_evaluacion === "PIE" ? 0.5 : 0.6;
+        const porcentaje_logrado = (puntaje_alumno / puntaje_total)*100;
+        const umbral_exigencia = exigencia * 10;
+        const escala_logro = 100 - umbral_exigencia;
+        let nota = ((porcentaje_logrado - umbral_exigencia) / escala_logro) * 6 + 1;
+        nota = Math.max(1, Math.min(7, nota));
+
+        //let nota = ((porcentaje_logrado - (exigencia * 10)) / (100 - (exigencia * 10))) * 6 + 1;
+        nota = parseFloat(nota.toFixed(2));
 
         // Actualizar y guardar la calificación
         Object.assign(calificacion, {
@@ -110,7 +120,8 @@ export async function updateCalificacionService({ id_nota, id_alumno, id_asignat
             id_asignatura,
             tipo_evaluacion,
             puntaje_alumno,
-            nota: nuevaNota,
+            puntaje_total,
+            nota,
             updatedAt: new Date(),
         });
         await evaluadoRepository.save(calificacion);

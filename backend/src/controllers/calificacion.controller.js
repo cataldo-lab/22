@@ -28,24 +28,26 @@ const validateRequest = (schema, data, res) => {
 // Crear una calificaci      n
 export async function createCalificacion(req, res) {
     try {
-        
-        if (!validateRequest(createCalificacionSchema, req.body, res)) return;
-        const { rut_alumno, id_asignatura, puntaje_alumno } = req.body;
+        // Validar el esquema de la solicitud
+        //if (!validateRequest(createCalificacionSchema, req.body, res)) return;
 
-        /*
-        if (!rut_alumno || !id_asignatura || puntaje_alumno === undefined) {
+        const { rut_alumno, id_asignatura, puntaje_alumno, puntaje_total } = req.body;
+
+        // Validar campos requeridos
+        /*if (!rut_alumno || !id_asignatura || puntaje_alumno === undefined) {
             return handleErrorClient(
                 res,
                 400,
-                "Faltan datos requeridos: id_alumno, id_asignatura o puntaje_alumno."
+                "Faltan datos requeridos: rut_alumno, id_asignatura, puntaje_alumno o puntaje_total."
             );
-        }*/
-
+        }
+        */
         // Llamar al servicio para crear la calificación
         const [nuevaCalificacion, error] = await createCalificacionService({
             rut_alumno,
             id_asignatura,
             puntaje_alumno,
+            puntaje_total,
         });
 
         if (error) {
@@ -53,11 +55,11 @@ export async function createCalificacion(req, res) {
         }
 
         // Respuesta exitosa
-        handleSuccess(res, 201, "Calificación creada exitosamente", nuevaCalificacion);
+        return handleSuccess(res, 201, "Calificación creada exitosamente", nuevaCalificacion);
     } catch (error) {
         // Manejo de errores de servidor
         console.error("Error en createCalificacion:", error.message);
-        handleErrorServer(res, 500, error.message);
+        return handleErrorServer(res, 500, error.message);
     }
 }
 
@@ -65,11 +67,11 @@ export async function createCalificacion(req, res) {
 export async function updateCalificacion(req, res) {
     try {
         const { id_nota } = req.params;
-        const { puntaje_alumno } = req.body;
+        const { puntaje_alumno, puntaje_total } = req.body;
 
-        if (puntaje_alumno < 10 || puntaje_alumno > 70) {
+        if (puntaje_alumno > puntaje_total) {
             return res.status(400).json({
-                mensaje: "El puntaje debe estar entre 10 y 70.",
+                mensaje: "Puntaje del alumno no puede ser mayor al puntaje total.",
             });
         }
 
@@ -78,6 +80,7 @@ export async function updateCalificacion(req, res) {
         const [calificacionActualizada, error] = await updateCalificacionService({
             id_nota,
             puntaje_alumno,
+            puntaje_total,
         });
 
         if (error) {

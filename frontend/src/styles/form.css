@@ -64,7 +64,6 @@
 		border-radius: 12px;
 		padding: 8px 5px;
 		background-repeat: no-repeat;
-		margin-bottom: 0.8vh;
 		background-color: #eef7ff;
 		font-weight: regular;
 		font-size: 16px;
@@ -248,4 +247,17 @@ input {
 	width: 25px;
 	height: 25px;
 	margin-top: 4px;
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+	
 }

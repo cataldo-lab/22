@@ -30,12 +30,21 @@ export const createCalificacionSchema = Joi.object({
         "number.base": "El ID de la asignatura debe ser un número válido.",
         "any.required": "El ID de la asignatura es obligatorio.",
     }),
-    puntaje_alumno: Joi.number().min(10).max(70).integer().required().messages({
+    puntaje_alumno: Joi.number().integer().required().messages({
         "number.base": "El puntaje del alumno debe ser un número.",
-        "number.min": "El puntaje mínimo es 10.",
-        "number.max": "El puntaje máximo es 70.",
         "any.required": "El puntaje del alumno es obligatorio.",
     }),
+    puntaje_total: Joi.number().integer().required().messages({
+        "number.base": "El puntaje total debe ser un número.",
+        "any.required": "El puntaje total es obligatorio.",
+    }),
+}).custom((value, helpers) => {
+    if (value.puntaje_total < value.puntaje_alumno) {
+        return helpers.error("any.invalid", {
+            message: "El puntaje total debe ser mayor o igual al puntaje del alumno.",
+        });
+    }
+    return value; // Retornar el objeto si es válido
 });
 
 // Validación para actualización de calificaciones

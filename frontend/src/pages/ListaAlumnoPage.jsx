@@ -13,13 +13,17 @@ import Swal from "sweetalert2";
 import "@styles/navBar.css"
 import "@styles/home.css";
 //import NavBar from "@components/NavBar";
+import { useForm } from "react-hook-form";
 
 
 
 
 function ListaAlumnoPage() {
-    
+
+    const { register} = useForm();
     const [alumnos, setAlumnos] = useState([]);
+    //const [alumnoUno, setAlumnoUno] = useState([]);
+    const [alumnoSeleccionado, setAlumnoSeleccionado] = useState(null);
     const [calificaciones, setCalificaciones] = useState([]);
     const [selectedAlumno, setSelectedAlumno] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -30,7 +34,9 @@ function ListaAlumnoPage() {
         rut_alumno: '',
         id_asignatura: '',
         puntaje_alumno: '',
+        puntaje_total:'',
     });
+   
    
 
     const handleChange = (event) => {
@@ -43,36 +49,59 @@ function ListaAlumnoPage() {
         Swal.fire({
             title: "Editar Nota",
             html: `
-                <label>Puntaje:</label>
-                <input id="swal-input-puntaje" type="number" value="${nota.puntaje_alumno}" />
+                <label>Puntaje Alumno:</label>
+                <input id="swal-input-puntaje-alumno" type="number" value="${nota.puntaje_alumno}" />
+                <br><br>
+                <label>Puntaje Total:</label>
+                <input id="swal-input-puntaje-total" type="number" value="${nota.puntaje_total}" />
             `,
             preConfirm: () => {
-                const puntaje = document.getElementById("swal-input-puntaje").value;
-                if (!puntaje) {
-                    Swal.showValidationMessage("El puntaje no puede estar vacío");
+                const puntajeAlumno = document.getElementById("swal-input-puntaje-alumno").value;
+                const puntajeTotal = document.getElementById("swal-input-puntaje-total").value;
+    
+                // Validar que ambos campos estén completos
+                if (!puntajeAlumno || !puntajeTotal) {
+                    Swal.showValidationMessage("Ambos campos son obligatorios.");
+                    return null;
                 }
-                return { puntaje_alumno: parseInt(puntaje, 10) };
+    
+                // Validar que ambos valores sean enteros positivos
+                if (!Number.isInteger(Number(puntajeAlumno)) || !Number.isInteger(Number(puntajeTotal))) {
+                    Swal.showValidationMessage("Ambos valores deben ser enteros.");
+                    return null;
+                }
+    
+                return {
+                    puntaje_alumno: parseInt(puntajeAlumno, 10),
+                    puntaje_total: parseInt(puntajeTotal, 10),
+                };
             },
         }).then(async (result) => {
             if (result.isConfirmed) {
                 try {
-                    const data = result.value; // Cuerpo JSON con el puntaje actualizado
+                    const data = result.value; // Cuerpo JSON con los valores actualizados
     
                     // Llamada al servicio patchCalificaciones
                     await patchCalificaciones(nota.id_nota, data);
     
                     // Actualizamos el estado local
                     const updatedCalificaciones = calificaciones.map((n) =>
-                        n.id_nota === nota.id_nota ? { ...n, puntaje_alumno: data.puntaje_alumno } : n
+                        n.id_nota === nota.id_nota
+                            ? {
+                                  ...n,
+                                  puntaje_alumno: data.puntaje_alumno,
+                                  puntaje_total: data.puntaje_total,
+                                  nota: ((data.puntaje_alumno / data.puntaje_total) * 7).toFixed(1),
+                              }
+                            : n
                     );
                     setCalificaciones(updatedCalificaciones);
+                    
     
                     Swal.fire("Nota actualizada con éxito", "", "success");
-                    
                 } catch (error) {
                     console.error("Error al actualizar la nota:", error);
                     Swal.fire("Error al actualizar la nota", "Por favor, intenta nuevamente.", "error");
-                    
                 }
             }
         });
@@ -96,8 +125,9 @@ function ListaAlumnoPage() {
     
                 // Actualizamos el estado local
                 const updatedCalificaciones = calificaciones.filter((n) => n.id_nota !== id_nota);
-                setCalificaciones(updatedCalificaciones);
-    
+                console.log(updatedCalificaciones)
+                 setCalificaciones(updatedCalificaciones);
+                
                 Swal.fire("Nota eliminada con éxito", "", "success");
                 
             } catch (error) {
@@ -110,7 +140,7 @@ function ListaAlumnoPage() {
     
     
 
-    const handleSubmit = async (event) => {
+    const handleSubmit1 = async (event) => {
         event.preventDefault();
         if (isSubmitting) return;
 
@@ -121,6 +151,8 @@ function ListaAlumnoPage() {
             <p><strong>Rut Alumno:</strong> ${formData.rut_alumno}</p>
             <p><strong>Asignatura:</strong> ${formData.id_asignatura}</p>
             <p><strong>Puntaje:</strong> ${formData.puntaje_alumno}</p>
+            <p><strong>Puntaje Total:</strong> ${formData.puntaje_total}</p> 
+            
         `,
         icon: "info",
         showCancelButton: true,
@@ -146,7 +178,12 @@ function ListaAlumnoPage() {
                 rut_alumno: '',
                 id_asignatura: '',
                 puntaje_alumno: '',
+                puntaje_total:'',
             });
+        if(selectedAlumno){
+            fetchNotasAlumno(selectedAlumno);
+        }
+        Swal.fire("Nota agregada con éxito", "", "success");
         } catch (error) {
             console.error('Error al enviar los datos:', error);
             alert('Error al enviar los datos de notas');
@@ -196,6 +233,16 @@ function ListaAlumnoPage() {
         }
     };
     
+    const handleFetchNotas = async (idAlumno) => {
+        try {
+            //console.log(`Intentando obtener las notas del alumno con ID: ${idAlumno}`);
+            await fetchNotasAlumno(idAlumno);
+        } catch (err) {
+            console.error("Error al llamar a fetchNotasAlumno:", err);
+        }
+    };
+   
+
     const renderNotas = () => {
         if (calificaciones.length === 0) {
             return (
@@ -211,7 +258,9 @@ function ListaAlumnoPage() {
                 <tr key={nota.id_nota}>
                     <td>{nota.asignatura.nombre_asignatura}</td>
                     <td>{nota.puntaje_alumno}</td>
-                    <td>{nota.nota}</td>
+                    <td>{nota.puntaje_total}</td>
+                    
+                    <td>{(parseFloat(nota.nota)).toFixed(1)}</td>
                     
                     <td>
                     <button
@@ -237,7 +286,7 @@ function ListaAlumnoPage() {
     };
 
     const toggleFormulario = () => {
-        setMostrarFormulario(!mostrarFormulario);
+        setMostrarFormulario((prev) => !prev);
     };
 
    
@@ -250,19 +299,26 @@ function ListaAlumnoPage() {
         return (
             <div className="agregar-nota">
                 <h2>Agregar Nota</h2>
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={handleSubmit1}>
                     <div>
-                        <label htmlFor="rut_alumno">Rut Alumno:</label>
-                        <input
-                            type="text"
+                        <label htmlFor="rut_alumno">Rut Alumno:  </label>
+                        <select
+                            
                             id="rut_alumno"
                             name="rut_alumno"
                             value={formData.rut_alumno}
                             onChange={handleChange}
-                        />
+                            >
+                        <option value="">Selecciona Rut alumno</option>
+                        {alumnos.map((alumno) => (
+                            <option key={alumno.idAlumno} value={alumno.rut}>
+                                {alumno.rut}
+                            </option>
+                        ))}
+                    </select>
                     </div>
                     <div>
-                        <label htmlFor="id_asignatura">Asignatura:</label>
+                        <label htmlFor="id_asignatura">Asignatura:  </label>
                         <select
                             id="id_asignatura"
                             name="id_asignatura"
@@ -277,12 +333,31 @@ function ListaAlumnoPage() {
                         
                     </div>
                     <div>
-                        <label htmlFor="puntaje">puntaje:</label>
+                        <label htmlFor="puntaje">Puntaje del Alumno:</label>
                         <input
                             type="text"
                             id="puntaje_alumno"
                             name="puntaje_alumno"
                             value={formData.puntaje_alumno}
+                            {...register("puntaje_alumno",{
+                                required: true,
+                                pattern: /^[0-9\b]+$/,
+
+                            })}
+                            onChange={handleChange}
+                        />
+                    </div>
+                    <div>
+                        <label htmlFor="puntaje_total">Puntaje Total:</label>
+                        <input
+                            type="text"
+                            id="puntaje_total"
+                            name="puntaje_total"
+                            value={formData.puntaje_total}
+                            {...register("puntaje_total",{
+                                required: true,
+                                pattern: /^[0-9\b]+$/
+                            })}
                             onChange={handleChange}
                         />
                     </div>
@@ -295,66 +370,71 @@ function ListaAlumnoPage() {
     if (loading) return <p>Cargando datos...</p>;
     if (error) return <p className="error-message">{error}</p>;
 
-   
+
 
     return (
         <div className="lista-alumnos-page">
             <Sidebar />
 
-            
-            
-           
-            
-            <table className="calificaciones-table">
-                        <thead>
-                            <tr>
-                                
-                                <th>Lista de Alumnos Asigandos</th>
-                                
-                            </tr>
-                        </thead>
-                        <tbody>
-                            
-                        </tbody>
-                        
-                    </table>
-            
-            <ul className="alumnos-list">
+        <h1>Lista de Alumnos</h1>
+
+         <table className="calificaciones-table">
+            <thead>
+                <tr>
+                    <th>Rut</th>
+                    <th>Nombre</th>
+                    <th>Apellido</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
                 {alumnos.map((alumno) => (
-                    <li key={alumno.idAlumno} className="alumno-item">
-                        <span>
-                             {alumno.rut} {alumno.nombre} {alumno.apellido}
-                        </span>
+                    <tr key={alumno.idAlumno}>
+                        <td>{alumno.rut}</td>
+                        <td>{alumno.nombre}</td>
+                        <td>{alumno.apellido}</td>
+                        <td>
                         <button
-                            className="mostrar-notas-btn"
-                            onClick={() => fetchNotasAlumno(alumno.idAlumno)?true:fetchNotasAlumno(null)}
-                        >
-                            Mostrar Notas
-                        </button>
-                    </li>
+                        className="mostrar-notas-btn"
+                        onClick={() => {
+                        fetchNotasAlumno(alumno.idAlumno); 
+                        handleFetchNotas(alumno.idAlumno);
+
+                        
+                        setAlumnoSeleccionado(`${alumno.nombre} ${alumno.apellido}`); 
+    }}
+>
+    Mostrar Notas
+</button>
+                        </td>
+                    </tr>
                 ))}
-            </ul>
+            </tbody>
+        </table>
 
             {selectedAlumno && (
                
                 <div className="calificaciones-section">
                 
-                    <h2>Notas del Alumno</h2>
+                    
                     <button onClick={toggleFormulario} className="agregar-notas-btn">
-                        {mostrarFormulario ? "Cerrar" : "+"}
+                        {mostrarFormulario ? "Cerrar" : "Añadir Nota"}
                     </button>
                     
-
+                    <h1></h1> 
                     {mostrarFormulario && renderFormulario()}
+                    <h3>Notas: {alumnoSeleccionado}</h3>
                     <table className="calificaciones-table">
                         <thead>
                             <tr>
                                 <th>Asignatura</th>
                                 <th>Puntaje Alumno</th>
+                                <th>Puntaje Total</th>
                                 <th>Notas</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
+                        
                         <tbody>{renderNotas()}</tbody>
                         
                        
@@ -368,8 +448,14 @@ function ListaAlumnoPage() {
             {!selectedAlumno && (
             <div className="calificaciones-section">
                 
-                <h1> </h1>
-
+               
+                <button onClick={toggleFormulario} className="agregar-notas-btn">
+                {mostrarFormulario ? "Cerrar" : "Añadir Nota"}
+                
+                </button>
+                <h3>Notas: {alumnoSeleccionado || "Sin seleccionar"}</h3>
+                {/*<h3>Notas: {alumnoSeleccionado}</h3>*/}
+                
                 <table className="calificaciones-table">
                         <thead>
                             <tr>
@@ -382,20 +468,14 @@ function ListaAlumnoPage() {
                             <tr>
                                 <td>El alumno o alumna no registra notas</td>
                             </tr>
+                            
                         </tbody>
                         
                     </table>
                 
-                <button onClick={toggleFormulario} className="agregar-notas-btn">
-                {mostrarFormulario ? "Cerrar" : "+"}
-                </button>
+                
                 {mostrarFormulario && renderFormulario()}
 
-
-                
-                    
-
-                
 
                 
             </div> 
