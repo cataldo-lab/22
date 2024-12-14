@@ -57,8 +57,8 @@ function NotasPage() {
                         <tr>
                             <th>Asignatura</th>
                             <th>Nota</th>
-                            <th>Ponderación</th>
-                            <th>Puntaje</th>
+                            <th>Puntaje Alumno</th>
+                            <th>Puntaje Total</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -74,9 +74,9 @@ function NotasPage() {
                                 {notas.map((nota, index) => (
                                     <tr key={index}>
                                         <td></td> {/* Columna vacía para alineación */}
-                                        <td>{nota.nota || "N/A"}</td>
-                                        <td>{nota.ponderacion_nota || "N/A"}</td>
+                                        <td>{(parseFloat(nota.nota)).toFixed(1) || "N/A"}</td>
                                         <td>{nota.puntaje_alumno || "N/A"}</td>
+                                        <td>{nota.puntaje_total || "N/A"}</td>
                                     </tr>
                                 ))}
                             </React.Fragment>
