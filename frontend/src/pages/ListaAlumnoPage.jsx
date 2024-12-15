@@ -20,7 +20,7 @@ import { useForm } from "react-hook-form";
 
 function ListaAlumnoPage() {
 
-    const { register} = useForm();
+    const { register, trigger, formState: { errors } } = useForm();
     const [alumnos, setAlumnos] = useState([]);
     //const [alumnoUno, setAlumnoUno] = useState([]);
     const [alumnoSeleccionado, setAlumnoSeleccionado] = useState(null);
@@ -36,12 +36,13 @@ function ListaAlumnoPage() {
         puntaje_alumno: '',
         puntaje_total:'',
     });
+    
    
    
 
     const handleChange = (event) => {
         setFormData({ ...formData, [event.target.name]: event.target.value });
-        
+
     };
 
     
@@ -51,30 +52,36 @@ function ListaAlumnoPage() {
             title: "Editar Nota",
             html: `
                 <label>Puntaje Alumno:</label>
-                <input id="swal-input-puntaje-alumno" type="number" value="${nota.puntaje_alumno}" />
-                <br><br>
+                <input id="swal-input-puntaje-alumno" type="number" class="swal2-input" value="${nota.puntaje_alumno}" />
+                <br>
                 <label>Puntaje Total:</label>
-                <input id="swal-input-puntaje-total" type="number" value="${nota.puntaje_total}" />
+                <input id="swal-input-puntaje-total" type="number" class="swal2-input" value="${nota.puntaje_total}" />
             `,
             preConfirm: () => {
-                const puntajeAlumno = document.getElementById("swal-input-puntaje-alumno").value;
-                const puntajeTotal = document.getElementById("swal-input-puntaje-total").value;
+                const puntajeAlumno = parseFloat(document.getElementById("swal-input-puntaje-alumno").value);
+                const puntajeTotal = parseFloat(document.getElementById("swal-input-puntaje-total").value);
     
                 // Validar que ambos campos estén completos
-                if (!puntajeAlumno || !puntajeTotal) {
+                if (isNaN(puntajeAlumno) || isNaN(puntajeTotal)) {
                     Swal.showValidationMessage("Ambos campos son obligatorios.");
                     return null;
                 }
     
-                // Validar que ambos valores sean enteros positivos
-                if (!Number.isInteger(Number(puntajeAlumno)) || !Number.isInteger(Number(puntajeTotal))) {
-                    Swal.showValidationMessage("Ambos valores deben ser enteros.");
+                // Validar que ambos valores sean mayores o iguales a 1
+                if (puntajeAlumno < 1 || puntajeTotal < 1) {
+                    Swal.showValidationMessage("Ambos valores deben ser mayores o iguales a 1.");
+                    return null;
+                }
+    
+                // Validar que puntajeAlumno no sea mayor a puntajeTotal
+                if (puntajeAlumno > puntajeTotal) {
+                    Swal.showValidationMessage("El puntaje del alumno no puede ser mayor al puntaje total.");
                     return null;
                 }
     
                 return {
-                    puntaje_alumno: parseInt(puntajeAlumno, 10),
-                    puntaje_total: parseInt(puntajeTotal, 10),
+                    puntaje_alumno: puntajeAlumno,
+                    puntaje_total: puntajeTotal,
                 };
             },
         }).then(async (result) => {
@@ -97,7 +104,6 @@ function ListaAlumnoPage() {
                             : n
                     );
                     setCalificaciones(updatedCalificaciones);
-                    
     
                     Swal.fire("Nota actualizada con éxito", "", "success");
                 } catch (error) {
@@ -107,6 +113,7 @@ function ListaAlumnoPage() {
             }
         });
     };
+    
     
     
     const handleDeleteClick = async (id_nota) => {
@@ -139,8 +146,73 @@ function ListaAlumnoPage() {
     };
     
     
-    
+// Asegúrate de tener este import
 
+const handleSubmit1 = async (event) => {
+    event.preventDefault(); // Prevenir comportamiento predeterminado del formulario
+    if (isSubmitting) return;
+
+    // Ejecuta validaciones de React Hook Form
+    const isValid = await trigger(); // trigger() valida todos los campos registrados
+    if (!isValid) {
+        Swal.fire("Error en el formulario", "Por favor corrige los campos destacados", "error");
+        return;
+    }
+
+    // Muestra la confirmación con SweetAlert2
+    const { isConfirmed } = await Swal.fire({
+        title: "Confirma los datos ingresados",
+        html: `
+            <p><strong>Rut Alumno:</strong> ${formData.rut_alumno}</p>
+            <p><strong>Asignatura:</strong> ${formData.id_asignatura}</p>
+            <p><strong>Puntaje:</strong> ${formData.puntaje_alumno}</p>
+            <p><strong>Puntaje Total:</strong> ${formData.puntaje_total}</p>
+        `,
+        icon: "info",
+        showCancelButton: true,
+        confirmButtonText: "Confirmar",
+        cancelButtonText: "Cancelar",
+        customClass: {
+            popup: "swal-popup",
+            confirmButton: "swal-confirm-btn",
+            cancelButton: "swal-cancel-btn",
+        },
+    });
+
+    if (!isConfirmed) {
+        Swal.fire("Envío cancelado", "", "error");
+        return;
+    }
+
+    // Envía los datos al backend
+    setIsSubmitting(true);
+    try {
+        const response = await postCalificaciones(formData);
+        console.log("Datos enviados con éxito:", response);
+
+        // Resetea el formulario
+        setFormData({
+            rut_alumno: "",
+            id_asignatura: "",
+            puntaje_alumno: "",
+            puntaje_total: "",
+        });
+
+        // Recarga las notas del alumno si está seleccionado
+        if (selectedAlumno) {
+            fetchNotasAlumno(selectedAlumno);
+        }
+
+        Swal.fire("Nota agregada con éxito", "", "success");
+    } catch (error) {
+        console.error("Error al enviar los datos:", error);
+        Swal.fire("Error", "Error al enviar los datos de notas", "error");
+    } finally {
+        setIsSubmitting(false);
+    }
+};
+    
+/*
     const handleSubmit1 = async (event) => {
         event.preventDefault();
         if (isSubmitting) return;
@@ -193,7 +265,7 @@ function ListaAlumnoPage() {
             setIsSubmitting(false);
         }
     };
-
+*/
 
 
 
@@ -302,71 +374,87 @@ function ListaAlumnoPage() {
                 <h2>Agregar Nota</h2>
                 <form onSubmit={handleSubmit1}>
                     <div>
-                        <label htmlFor="rut_alumno">Rut Alumno:  </label>
+                        <label htmlFor="rut_alumno">Rut Alumno:</label>
                         <select
-                            
                             id="rut_alumno"
                             name="rut_alumno"
+                            {...register("rut_alumno", { required: "El RUT del alumno es obligatorio" })}
                             value={formData.rut_alumno}
                             onChange={handleChange}
-                            >
-                        <option value="">Selecciona Rut alumno</option>
-                        {alumnos.map((alumno) => (
-                            <option key={alumno.idAlumno} value={alumno.rut}>
-                                {alumno.rut}
-                            </option>
-                        ))}
-                    </select>
+                        >
+                            <option value="">Selecciona un alumno</option>
+                            {alumnos.map((alumno) => (
+                                <option key={alumno.idAlumno} value={alumno.rut}>
+                                    {alumno.rut}
+                                </option>
+                            ))}
+                        </select>
+                        {errors?.rut_alumno && <p className="error-message">{errors.rut_alumno.message}</p>}
                     </div>
+    
                     <div>
-                        <label htmlFor="id_asignatura">Asignatura:  </label>
+                        <label htmlFor="id_asignatura">Asignatura:</label>
                         <select
                             id="id_asignatura"
                             name="id_asignatura"
+                            {...register("id_asignatura", { required: "La asignatura es obligatoria" })}
                             value={formData.id_asignatura}
                             onChange={handleChange}
                         >
-                        <option value="">Selecciona una asignatura</option>
-                        <option value="1">Matemáticas</option>
-                        <option value="2">Fisica</option>
-                         <option value="3">Quimica</option>
+                            <option value="">Selecciona una asignatura</option>
+                            <option value="1">Matemáticas</option>
+                            <option value="2">Física</option>
+                            <option value="3">Química</option>
                         </select>
-                        
+                        {errors?.id_asignatura && <p className="error-message">{errors.id_asignatura.message}</p>}
                     </div>
+    
                     <div>
-                        <label htmlFor="puntaje">Puntaje del Alumno:</label>
+                        <label htmlFor="puntaje_alumno">Puntaje del Alumno:</label>
                         <input
-                            type="text"
+                            type="number"
                             id="puntaje_alumno"
                             name="puntaje_alumno"
-                            value={formData.puntaje_alumno}
-                            {...register("puntaje_alumno",{
-                                required: true,
-                                pattern: /^[0-9\b]+$/,
-
+                            {...register("puntaje_alumno", {
+                                required: "El puntaje del alumno es obligatorio",
+                                min: { value: 1, message: "Debe ser mayor o igual a 1" },
+                                validate: (value) => {
+                                    const total = parseFloat(formData.puntaje_total) || 0; // Previene NaN
+                                    if (value > total) {
+                                        return "El puntaje del alumno no puede ser mayor al puntaje total";
+                                    }
+                                    return true;
+                                }
                             })}
+                            value={formData.puntaje_alumno}
                             onChange={handleChange}
                         />
+                        {errors?.puntaje_alumno && <p className="error-message">{errors.puntaje_alumno.message}</p>}
                     </div>
+    
                     <div>
                         <label htmlFor="puntaje_total">Puntaje Total:</label>
                         <input
-                            type="text"
+                            type="number"
                             id="puntaje_total"
                             name="puntaje_total"
-                            value={formData.puntaje_total}
-                            {...register("puntaje_total",{
-                                required: true,
-                                pattern: /^[0-9\b]+$/
+                            {...register("puntaje_total", {
+                                required: "El puntaje total es obligatorio",
+                                min: { value: 1, message: "Debe ser mayor o igual a 1" },
                             })}
+                            value={formData.puntaje_total}
                             onChange={handleChange}
                         />
+                        {errors?.puntaje_total && <p className="error-message">{errors.puntaje_total.message}</p>}
                     </div>
+    
                     <button type="submit">Calificar</button>
                 </form>
             </div>
         );
     };
+    
+    
 
     if (loading) return <p>Cargando datos...</p>;
     if (error) return <p className="error-message">{error}</p>;
