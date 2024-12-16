@@ -30,11 +30,11 @@ export const createCalificacionSchema = Joi.object({
         "number.base": "El ID de la asignatura debe ser un número válido.",
         "any.required": "El ID de la asignatura es obligatorio.",
     }),
-    puntaje_alumno: Joi.number().integer().required().messages({
+    puntaje_alumno: Joi.number().integer().required().min(1).messages({
         "number.base": "El puntaje del alumno debe ser un número.",
         "any.required": "El puntaje del alumno es obligatorio.",
     }),
-    puntaje_total: Joi.number().integer().required().messages({
+    puntaje_total: Joi.number().integer().min(1).required().messages({
         "number.base": "El puntaje total debe ser un número.",
         "any.required": "El puntaje total es obligatorio.",
     }),

@@ -29,7 +29,7 @@ const validateRequest = (schema, data, res) => {
 export async function createCalificacion(req, res) {
     try {
         // Validar el esquema de la solicitud
-        //if (!validateRequest(createCalificacionSchema, req.body, res)) return;
+        if (!validateRequest(createCalificacionSchema, req.body, res)) return;
 
         const { rut_alumno, id_asignatura, puntaje_alumno, puntaje_total } = req.body;
 
