@@ -49,13 +49,29 @@ export const createCalificacionSchema = Joi.object({
 
 // Validación para actualización de calificaciones
 export const updateCalificacionSchema = Joi.object({
-    calificacion: Joi.number().min(10).max(70).required().messages({
-        "number.base": "La calificación debe ser un número.",
-        "number.min": "La calificación mínima es 1.",
-        "number.max": "La calificación máxima es 7.",
-        "any.required": "La calificación es obligatoria.",
-    }),
-    
+    puntaje_alumno: Joi.number()
+        .min(1)
+        .required()
+        .messages({
+            "number.base": "El puntaje del alumno debe ser un número.",
+            "number.min": "El puntaje del alumno debe ser al menos 1.",
+            "any.required": "El puntaje del alumno es obligatorio.",
+        }),
+    puntaje_total: Joi.number()
+        .min(1)
+        .required()
+        .messages({
+            "number.base": "El puntaje total debe ser un número.",
+            "number.min": "El puntaje total debe ser al menos 1.",
+            "any.required": "El puntaje total es obligatorio.",
+        }),
+}).custom((value, helpers) => {
+    if (value.puntaje_alumno > value.puntaje_total) {
+        return helpers.message(
+            "El puntaje del alumno no puede ser mayor al puntaje total."
+        );
+    }
+    return value;
 });
 
 // Validación para eliminación de calificaciones

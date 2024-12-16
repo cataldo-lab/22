@@ -33,15 +33,7 @@ export async function createCalificacion(req, res) {
 
         const { rut_alumno, id_asignatura, puntaje_alumno, puntaje_total } = req.body;
 
-        // Validar campos requeridos
-        /*if (!rut_alumno || !id_asignatura || puntaje_alumno === undefined) {
-            return handleErrorClient(
-                res,
-                400,
-                "Faltan datos requeridos: rut_alumno, id_asignatura, puntaje_alumno o puntaje_total."
-            );
-        }
-        */
+        
         // Llamar al servicio para crear la calificación
         const [nuevaCalificacion, error] = await createCalificacionService({
             rut_alumno,
@@ -66,25 +58,27 @@ export async function createCalificacion(req, res) {
 //No tocar
 export async function updateCalificacion(req, res) {
     try {
-        const { id_nota } = req.params;
-        const { puntaje_alumno, puntaje_total } = req.body;
+        // Validación del cuerpo de la solicitud
+        const { error } = updateCalificacionSchema.validate(req.body, { abortEarly: false });
 
-        if (puntaje_alumno > puntaje_total) {
+        if (error) {
             return res.status(400).json({
-                mensaje: "Puntaje del alumno no puede ser mayor al puntaje total.",
+                mensaje: "Errores de validación",
+                detalles: error.details.map((detail) => detail.message),
             });
         }
 
-        
+        const { id_nota } = req.params;
+        const { puntaje_alumno, puntaje_total } = req.body;
 
-        const [calificacionActualizada, error] = await updateCalificacionService({
+        const [calificacionActualizada, errorService] = await updateCalificacionService({
             id_nota,
             puntaje_alumno,
             puntaje_total,
         });
 
-        if (error) {
-            return res.status(404).json({ mensaje: error });
+        if (errorService) {
+            return res.status(404).json({ mensaje: errorService });
         }
 
         res.status(200).json({
