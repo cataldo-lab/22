@@ -15,8 +15,6 @@ import {
 const router = Router();
 router.use(authenticateJwt);
 
-// Rutas para CRUD de notas de alumnos por profesor
-// Ruta para que alumno pueda ver sus notas
 router.get("/alumno/:id_alumno", authorizeRoles("alumno", "profesor"), getCalificacionesByAlumnoId);
 router.post("/", authorizeRoles("profesor"), createCalificacion);
 router.patch("/:id_nota", authorizeRoles("profesor"), updateCalificacion);

@@ -2,10 +2,10 @@
 
 import { getCalificacionesByAlumnoIdService } from "../services/alumno.service.js";
 
-// Controlador donde cada alumno obtiene sus notas de todos sus ramos
+// Controlador para obtener calificaciones del alumno autenticado
 export async function getCalificacionesAlumno(req, res) {
     try {
-        
+        // Llama al servicio para obtener las calificaciones
         const [calificaciones, error] = await getCalificacionesByAlumnoIdService(req);
 
         if (error) {

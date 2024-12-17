@@ -13,10 +13,12 @@ export async function getUserService(id_usuario) {
     try {
         const userRepository = AppDataSource.getRepository(User);
 
+        // Buscar usuario por id_usuario
         const user = await userRepository.findOne({
             where: { id_usuario },
         });
 
+        // Manejar caso de usuario no encontrado
         if (!user) {
             return { status: 404, message: "Usuario no encontrado." };
         }

@@ -10,8 +10,6 @@ import {
   handleSuccess,
 } from "../handlers/responseHandlers.js";
 
-
-// Controlador para iniciar sesión con rol alumno o profesor
 export async function login(req, res) {
   try {
     const { body } = req;
@@ -36,7 +34,6 @@ export async function login(req, res) {
   }
 }
 
-// Controlador para registrar un nuevo usuario en la base de datos
 export async function register(req, res) {
   try {
       const { body } = req;
@@ -66,7 +63,7 @@ export async function register(req, res) {
   }
 }
 
-// Controlador para cerrar sesión
+
 export async function logout(req, res) {
   try {
     res.clearCookie("jwt", { httpOnly: true });
@@ -76,7 +73,6 @@ export async function logout(req, res) {
   }
 }
 
-// Controlador para obtener el perfil del alumno
 export function generarTokenAlumno(alumno) {
   const payload = {
       id_alumno: alumno.id_alumno, 

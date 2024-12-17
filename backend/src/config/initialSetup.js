@@ -221,7 +221,7 @@ async function createEvaluados() {
           return;
       }
 
-     
+      // Obtener alumnos y asignaturas
       const alumnos = await alumnoRepository.find({ take: 5 }); // Limitar a los primeros 5 alumnos
       const asignaturas = await asignaturaRepository.find();
 
@@ -230,40 +230,41 @@ async function createEvaluados() {
           return;
       }
 
-     
+      // Crear evaluaciones de prueba
       const evaluaciones = [
           {
               id_alumno: alumnos[0].id_alumno,
               id_asignatura: asignaturas[0].id_asignatura,
-              nota: 5.5,
+              nota: 7.0,
               ponderacion_nota: 0.6,
               tipo_evaluacion: "Parcial",
               descripcion: "Primera evaluación del curso.",
               fecha: "2024-01-15",
               puntaje_alumno: 90,
-              puntaje_total:90
+              puntaje_total: 90,
+
           },
           {
               id_alumno: alumnos[1].id_alumno,
               id_asignatura: asignaturas[1]?.id_asignatura || asignaturas[0].id_asignatura,
-              nota: 6.0,
-              ponderacion_nota: 0.7,
+              nota: 7.0,
+              ponderacion_nota: 0.5,
               tipo_evaluacion: "Examen",
               descripcion: "Evaluación final del semestre.",
               fecha: "2024-06-20",
               puntaje_alumno: 95,
-              puntaje_total:95
+              puntaje_total: 95,
           },
           {
               id_alumno: alumnos[2].id_alumno,
               id_asignatura: asignaturas[2]?.id_asignatura || asignaturas[0].id_asignatura,
-              nota: 4.0,
+              nota: 7.0,
               ponderacion_nota: 0.5,
               tipo_evaluacion: "Tarea",
               descripcion: "Entrega de informe.",
               fecha: "2024-03-10",
               puntaje_alumno: 70,
-              puntaje_total:70
+              puntaje_total: 70,
           },
       ];
 
