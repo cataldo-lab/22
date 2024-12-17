@@ -14,7 +14,7 @@ const rutValidator = Joi.string()
         "any.required": "El RUT es obligatorio.",
     });
 
-// Validador de ID de calificación (id_nota)
+// Validador de ID de calificación 
 const idNotaValidator = Joi.string()
     .required()
     .messages({
@@ -44,10 +44,10 @@ export const createCalificacionSchema = Joi.object({
             message: "El puntaje total debe ser mayor o igual al puntaje del alumno.",
         });
     }
-    return value; // Retornar el objeto si es válido
+    return value; 
 });
 
-// Validación para actualización de calificaciones
+// Validación para actualización de calificación
 export const updateCalificacionSchema = Joi.object({
     puntaje_alumno: Joi.number()
         .min(1)
@@ -74,7 +74,7 @@ export const updateCalificacionSchema = Joi.object({
     return value;
 });
 
-// Validación para eliminación de calificaciones
+// Validación para deleteCalificacion
 export const deleteCalificacionSchema = Joi.object({
     alumnoRut: rutValidator,
     idNota: idNotaValidator,

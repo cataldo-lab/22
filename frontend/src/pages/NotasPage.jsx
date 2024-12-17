@@ -11,7 +11,7 @@ function NotasPage() {
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    // Función para agrupar las notas por asignatura
+    
     const groupNotasByAsignatura = (notas) => {
         return notas.reduce((groups, nota) => {
             const asignatura = nota.asignatura?.nombre_asignatura || "Sin Asignatura";
@@ -26,7 +26,7 @@ function NotasPage() {
     useEffect(() => {
         async function fetchNotas() {
             try {
-                const data = await getAlumnoNotas(); // Llamada al servicio
+                const data = await getAlumnoNotas(); //Se obtienen las notas del alumno
                 setNotas(data);
             } catch (err) {
                 console.error("Error al cargar notas:", err);
@@ -39,14 +39,15 @@ function NotasPage() {
         fetchNotas();
     }, []);
 
-    const groupedNotas = groupNotasByAsignatura(notas); // Agrupar notas aquí
+    //Se usa para agrupar notas por asignatura
+    const groupedNotas = groupNotasByAsignatura(notas); 
 
     return (
         <div className="notas-page">
             <Sidebar />
             <h1>Notas del Alumno</h1>
 
-            {/* Renderizado condicional con corto circuito */}
+           
             {loading && <p>Cargando notas...</p>}
             {error && <p className="error-message">{error}</p>}
 
@@ -64,7 +65,7 @@ function NotasPage() {
                     <tbody>
                         {Object.entries(groupedNotas).map(([asignatura, notas]) => (
                             <React.Fragment key={asignatura}>
-                                {/* Encabezado de la asignatura */}
+                                
                                 <tr className="asignatura-header">
                                     <td colSpan="4">
                                         <strong>{asignatura}</strong>

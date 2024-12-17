@@ -6,13 +6,12 @@ import {
     patchCalificaciones,
     postCalificaciones,
 } from "@services/ListaAlumnos.service";
-import "@styles/listaAlumnos.css";
+import "@styles/ListaAlumnos.css";
 import Sidebar from "@components/Sidebar";
 import "@styles/home.css";
 import Swal from "sweetalert2";
-import "@styles/navBar.css"
+import "@styles/navbar.css"
 import "@styles/home.css";
-//import NavBar from "@components/NavBar";
 import { useForm } from "react-hook-form";
 
 
@@ -22,7 +21,6 @@ function ListaAlumnoPage() {
 
     const { register, trigger, formState: { errors } } = useForm();
     const [alumnos, setAlumnos] = useState([]);
-    //const [alumnoUno, setAlumnoUno] = useState([]);
     const [alumnoSeleccionado, setAlumnoSeleccionado] = useState(null);
     const [calificaciones, setCalificaciones] = useState([]);
     const [selectedAlumno, setSelectedAlumno] = useState(null);
@@ -61,19 +59,19 @@ function ListaAlumnoPage() {
                 const puntajeAlumno = parseFloat(document.getElementById("swal-input-puntaje-alumno").value);
                 const puntajeTotal = parseFloat(document.getElementById("swal-input-puntaje-total").value);
     
-                // Validar que ambos campos estén completos
+                // Ambos campos deben estar completos
                 if (isNaN(puntajeAlumno) || isNaN(puntajeTotal)) {
                     Swal.showValidationMessage("Ambos campos son obligatorios.");
                     return null;
                 }
     
-                // Validar que ambos valores sean mayores o iguales a 1
+                // Valida los valores ingresados sean mayores o iguales a 1
                 if (puntajeAlumno < 1 || puntajeTotal < 1) {
                     Swal.showValidationMessage("Ambos valores deben ser mayores o iguales a 1.");
                     return null;
                 }
     
-                // Validar que puntajeAlumno no sea mayor a puntajeTotal
+                // Validar que puntajeAlumno <= puntajeTotal
                 if (puntajeAlumno > puntajeTotal) {
                     Swal.showValidationMessage("El puntaje del alumno no puede ser mayor al puntaje total.");
                     return null;
@@ -87,12 +85,12 @@ function ListaAlumnoPage() {
         }).then(async (result) => {
             if (result.isConfirmed) {
                 try {
-                    const data = result.value; // Cuerpo JSON con los valores actualizados
+                    const data = result.value; 
     
-                    // Llamada al servicio patchCalificaciones
+                    
                     await patchCalificaciones(nota.id_nota, data);
     
-                    // Actualizamos el estado local
+                    
                     const updatedCalificaciones = calificaciones.map((n) =>
                         n.id_nota === nota.id_nota
                             ? {
@@ -103,6 +101,7 @@ function ListaAlumnoPage() {
                               }
                             : n
                     );
+                    //Actualiza las calificaciones de forma local
                     setCalificaciones(updatedCalificaciones);
     
                     Swal.fire("Nota actualizada con éxito", "", "success");
@@ -115,7 +114,7 @@ function ListaAlumnoPage() {
     };
     
     
-    
+    // Función para eliminar una nota
     const handleDeleteClick = async (id_nota) => {
         const { isConfirmed } = await Swal.fire({
             title: "¿Estás seguro?",
@@ -128,10 +127,10 @@ function ListaAlumnoPage() {
     
         if (isConfirmed) {
             try {
-                // Llamada al servicio deleteCalificaciones
+                // Llama deleteCalificaciones
                 await deleteCalificaciones(id_nota);
     
-                // Actualizamos el estado local
+                // Actualizamos localmente la pagina
                 const updatedCalificaciones = calificaciones.filter((n) => n.id_nota !== id_nota);
                 console.log(updatedCalificaciones)
                  setCalificaciones(updatedCalificaciones);
@@ -146,14 +145,14 @@ function ListaAlumnoPage() {
     };
     
     
-// Asegúrate de tener este import
+
 
 const handleSubmit1 = async (event) => {
     event.preventDefault(); // Prevenir comportamiento predeterminado del formulario
     if (isSubmitting) return;
 
     // Ejecuta validaciones de React Hook Form
-    const isValid = await trigger(); // trigger() valida todos los campos registrados
+    const isValid = await trigger(); // trigger() sirve para validar todos los campos registrados
     if (!isValid) {
         Swal.fire("Error en el formulario", "Por favor corrige los campos destacados", "error");
         return;
@@ -190,7 +189,7 @@ const handleSubmit1 = async (event) => {
         const response = await postCalificaciones(formData);
         console.log("Datos enviados con éxito:", response);
 
-        // Resetea el formulario
+        // Datos usados postear notas
         setFormData({
             rut_alumno: "",
             id_asignatura: "",
@@ -198,7 +197,7 @@ const handleSubmit1 = async (event) => {
             puntaje_total: "",
         });
 
-        // Recarga las notas del alumno si está seleccionado
+        // Recarga las notas del alumno 
         if (selectedAlumno) {
             fetchNotasAlumno(selectedAlumno);
         }
@@ -212,61 +211,6 @@ const handleSubmit1 = async (event) => {
     }
 };
     
-/*
-    const handleSubmit1 = async (event) => {
-        event.preventDefault();
-        if (isSubmitting) return;
-
-
-        const { isConfirmed } = await Swal.fire({
-        title: "Confirma los datos ingresados",
-        html: `
-            <p><strong>Rut Alumno:</strong> ${formData.rut_alumno}</p>
-            <p><strong>Asignatura:</strong> ${formData.id_asignatura}</p>
-            <p><strong>Puntaje:</strong> ${formData.puntaje_alumno}</p>
-            <p><strong>Puntaje Total:</strong> ${formData.puntaje_total}</p> 
-            
-        `,
-        icon: "info",
-        showCancelButton: true,
-        confirmButtonText: "Confirmar",
-        cancelButtonText: "Cancelar",
-        customClass: {
-            popup: "swal-popup",
-            confirmButton: "swal-confirm-btn",
-            cancelButton: "swal-cancel-btn",
-        },
-    });
-
-    if (!isConfirmed) {
-        Swal.fire("Envío cancelado", "", "error");
-        return;
-    }
-
-
-        try {
-            const response = await postCalificaciones(formData);
-            console.log('Datos enviados con éxito:', response);
-            setFormData({
-                rut_alumno: '',
-                id_asignatura: '',
-                puntaje_alumno: '',
-                puntaje_total:'',
-            });
-        if(selectedAlumno){
-            fetchNotasAlumno(selectedAlumno);
-        }
-        Swal.fire("Nota agregada con éxito", "", "success");
-        } catch (error) {
-            console.error('Error al enviar los datos:', error);
-            alert('Error al enviar los datos de notas');
-        }finally
-        {
-            setIsSubmitting(false);
-        }
-    };
-*/
-
 
 
     useEffect(() => {
@@ -308,7 +252,7 @@ const handleSubmit1 = async (event) => {
     
     const handleFetchNotas = async (idAlumno) => {
         try {
-            //console.log(`Intentando obtener las notas del alumno con ID: ${idAlumno}`);
+            //console.log(`Intentando obtener las notas del alumno con ID: ${idAlumno}`); usado para debuggear
             await fetchNotasAlumno(idAlumno);
         } catch (err) {
             console.error("Error al llamar a fetchNotasAlumno:", err);
@@ -348,9 +292,7 @@ const handleSubmit1 = async (event) => {
                     >
                         Eliminar
                     </button>
-
-
-                   
+  
                 </td>
                 </tr>
             ));
@@ -365,9 +307,6 @@ const handleSubmit1 = async (event) => {
    
    
   
-
-
-
     const renderFormulario = () => {
         return (
             <div className="agregar-nota">
@@ -419,7 +358,7 @@ const handleSubmit1 = async (event) => {
                                 required: "El puntaje del alumno es obligatorio",
                                 min: { value: 1, message: "Debe ser mayor o igual a 1" },
                                 validate: (value) => {
-                                    const total = parseFloat(formData.puntaje_total) || 0; // Previene NaN
+                                    const total = parseFloat(formData.puntaje_total) || 0; // Puntaje total
                                     if (value > total) {
                                         return "El puntaje del alumno no puede ser mayor al puntaje total";
                                     }
@@ -458,7 +397,6 @@ const handleSubmit1 = async (event) => {
 
     if (loading) return <p>Cargando datos...</p>;
     if (error) return <p className="error-message">{error}</p>;
-
 
 
     return (
@@ -529,7 +467,7 @@ const handleSubmit1 = async (event) => {
                        
 
                     </table>
-                    {/*reformularNota &&renderReformularNota()*/}
+                    
                 </div>
                 
 

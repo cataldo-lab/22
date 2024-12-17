@@ -33,12 +33,12 @@ export async function loginService(user) {
       return [null, createErrorMessage("password", "La contraseña es incorrecta")];
     }
 
-    // Obtener id_alumno si el usuario es un alumno
+    
     const alumno = await alumnoRepository.findOneBy({
       id_usuario: userFound.id_usuario
     });
 
-    // Obtener id_profesor si el usuario es un profesor
+    
     const profesor = await profesorRepository.findOneBy({
       id_usuario: userFound.id_usuario
     });
@@ -69,36 +69,36 @@ export async function registerService(userData) {
     const alumnoRepository = AppDataSource.getRepository(Alumno);
     const profesorRepository = AppDataSource.getRepository(Profesor);
 
-    // Encriptar la contraseña
+    
     const encryptedPassword = await encryptPassword(userData.password);
 
-    // Crear el usuario en la tabla `User`
+    
     const newUser = userRepository.create({
       ...userData,
       password: encryptedPassword,
     });
     await userRepository.save(newUser);
 
-    // Asociar el usuario al rol correspondiente
+    
     if (userData.rol === "alumno") {
       const newAlumno = alumnoRepository.create({
-        id_usuario: newUser.id_usuario, // Asociar el ID del usuario
-        alumno_Pie: userData.alumno_Pie || false, // Campo adicional si existe
+        id_usuario: newUser.id_usuario, 
+        alumno_Pie: userData.alumno_Pie || false, 
       });
       await alumnoRepository.save(newAlumno);
 
-      // Actualizar el `id_alumno` en la tabla `users`
+      
       newUser.id_alumno = newAlumno.id_alumno;
       await userRepository.save(newUser);
 
     } else if (userData.rol === "profesor") {
       const newProfesor = profesorRepository.create({
-        id_usuario: newUser.id_usuario, // Asociar el ID del usuario
+        id_usuario: newUser.id_usuario, 
         
       });
       await profesorRepository.save(newProfesor);
 
-      // Actualizar el `id_profesor` en la tabla `users`
+      
       newUser.id_profesor = newProfesor.id_profesor;
       await userRepository.save(newUser);
 
@@ -106,7 +106,7 @@ export async function registerService(userData) {
       throw new Error("Rol inválido. Solo se permiten 'alumno' o 'profesor'.");
     }
 
-    // Retornar el usuario creado
+    
     return [newUser, null];
   } catch (error) {
     console.error("Error en registerService:", error.message);

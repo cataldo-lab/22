@@ -3,20 +3,18 @@ import ProfesorSchema from "../entity/profesor.entity.js";
 
 export async function getAlumnosPorProfesorService(req) {
     try {
-        // Extraer el ID del profesor desde el token del usuario autenticado
         const { id_profesor } = req.user;
 
         if (!id_profesor) {
             throw new Error("El token no contiene un ID de profesor válido.");
         }
 
-        // Obtener el repositorio de Profesores
+        
         const profesorRepository = AppDataSource.getRepository(ProfesorSchema);
 
-        // Buscar al profesor con sus asignaturas y alumnos relacionados
         const profesor = await profesorRepository.findOne({
             where: { id_profesor },
-            relations: ["asignaturas.alumnos.usuario"], // Relación completa
+            relations: ["asignaturas.alumnos.usuario"], 
         });
 
         if (!profesor) {

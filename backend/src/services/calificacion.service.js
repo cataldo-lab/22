@@ -16,20 +16,20 @@ export async function createCalificacionService({ rut_alumno, id_asignatura, pun
         const asignaturaRepository = AppDataSource.getRepository(Asignatura);
         const evaluadoRepository = AppDataSource.getRepository(Evaluado);
 
-        // Buscar el id_alumno por rut
+       
         const usuario = await usuarioRepository.findOneBy({ rut: rut_alumno });
         if (!usuario) throw new Error("Alumno no encontrado con el rut proporcionado.");
 
         const id_alumno = usuario.id_alumno;
 
-        // Validar existencia del alumno
+        
         const alumno = await alumnoRepository.findOneBy({ id_alumno });
         if (!alumno) throw new Error("Alumno no encontrado en la base de datos.");
 
-        // Validar si pertenece al programa PIE
+        // Alumno pertenerce al programa PIE?
         const tipo_evaluacion = alumno.alumno_Pie ? "PIE" : "ESTÁNDAR";
 
-        // Validar existencia de la asignatura
+        // Asignatura existe?
         const asignatura = await asignaturaRepository.findOneBy({ id_asignatura });
         if (!asignatura) throw new Error("Asignatura no encontrada.");
 
@@ -42,10 +42,11 @@ export async function createCalificacionService({ rut_alumno, id_asignatura, pun
         let nota = ((porcentaje_logrado - umbral_exigencia) / escala_logro) * 6 + 1;
         nota = Math.max(1, Math.min(7, nota));
 
+        //Codigo anterior de nota
         //let nota = ((porcentaje_logrado - (exigencia * 10)) / (100 - (exigencia * 10))) * 6 + 1;
         nota = parseFloat(nota.toFixed(2));
 
-        // Crear y guardar la calificación
+        
         const nuevaCalificacion = evaluadoRepository.create({
             id_alumno,
             id_asignatura,
@@ -88,15 +89,15 @@ export async function updateCalificacionService({ id_nota, id_alumno, id_asignat
         const asignaturaRepository = AppDataSource.getRepository(Asignatura);
         const evaluadoRepository = AppDataSource.getRepository(Evaluado);
 
-        // Validar existencia de la calificación por ID
+        
         const calificacion = await evaluadoRepository.findOneBy({ id_nota });
         if (!calificacion) throw new Error("Calificación no encontrada.");
 
-        // Validar existencia del alumno
+        
         const alumno = await alumnoRepository.findOneBy({ id_alumno });
         if (!alumno) throw new Error("Alumno no encontrado.");
 
-        // Determinar si pertenece al programa PIE
+        // Alumno pertenece al programa PIE?
         const tipo_evaluacion = alumno.alumno_Pie ? "PIE" : "ESTÁNDAR";
 
         // Validar existencia de la asignatura
@@ -111,10 +112,10 @@ export async function updateCalificacionService({ id_nota, id_alumno, id_asignat
         let nota = ((porcentaje_logrado - umbral_exigencia) / escala_logro) * 6 + 1;
         nota = Math.max(1, Math.min(7, nota));
 
+        //Codigo anterior de nota
         //let nota = ((porcentaje_logrado - (exigencia * 10)) / (100 - (exigencia * 10))) * 6 + 1;
         nota = parseFloat(nota.toFixed(2));
 
-        // Actualizar y guardar la calificación
         Object.assign(calificacion, {
             id_alumno,
             id_asignatura,
@@ -140,13 +141,13 @@ export async function deleteCalificacionService(id_nota) {
     try {
         const evaluadoRepository = AppDataSource.getRepository(Evaluado);
 
-        // Buscar la calificación por su ID
+        
         const calificacion = await evaluadoRepository.findOneBy({ id_nota });
         if (!calificacion) {
             return [null, "Calificación no encontrada."];
         }
 
-        // Eliminar la calificación
+        
         await evaluadoRepository.remove(calificacion);
 
         return [calificacion, null];

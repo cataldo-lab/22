@@ -10,10 +10,10 @@ import {
 
 const router = Router();
 
-// Apply authentication middleware to all routes
+// 
 router.use(authenticateJwt);
 
-// Define route-specific middleware and handlers
+// Rutas para obtener y modificar usuarios
 router.get("/", authorizeRoles("admin", "profesor"), getUsers); 
 router.get("/detail/:id", authorizeRoles("admin", "profesor"), getUser); 
 router.patch("/detail/:id", authorizeRoles("admin", "profesor"), updateUser); 

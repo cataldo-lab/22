@@ -159,26 +159,10 @@
   }
   
   .agregar-nota button:hover {
-    background-color: #45a049; /* Color de fondo al pasar el cursor */
+    background-color: #45a049; 
   }
 
-  .edit-icon {
-    width: 20px;
-    height: 20px;
-    background-image: url("@assets/edit.svg");
-    background-size: contain;
-    background-repeat: no-repeat;
-    cursor: pointer;
-}
 
-.delete-icon {
-    width: 20px;
-    height: 20px;
-    background-image: url("@assets/delete.svg");
-    background-size: contain;
-    background-repeat: no-repeat;
-    cursor: pointer;
-}
 
 
 
@@ -190,7 +174,7 @@
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-/* Botón de confirmar */
+
 .swal-confirm-btn {
     background-color: #4caf50; /* Verde */
     color: white;
@@ -206,7 +190,7 @@
     background-color: #45a049;
 }
 
-/* Botón de cancelar */
+
 .swal-cancel-btn {
     background-color: #f44336; /* Rojo */
     color: white;

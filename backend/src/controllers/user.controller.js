@@ -10,7 +10,7 @@ import { createUserValidationSchema } from "../validations/user.validation.js";
 
 export async function getUser(req, res) {
     try {
-        const { id_usuario } = req.params; // Supone que id_usuario viene en los parámetros de la ruta
+        const { id_usuario } = req.params; 
         const { status, message, data } = await getUserService(id_usuario);
 
         return res.status(status).json({
@@ -67,10 +67,10 @@ export async function getUsers(req, res) {
             });
         }
 
-        // Llamar al servicio para obtener los usuarios según el rol
+        // Llamar la autenticacion por rol
         const { status, message, data } = await getUsersService(rol);
 
-        // Responder con los datos o manejar errores
+        // Responder al cliente 
         return res.status(status).json({
             status: status === 200 ? "Success" : "Client error",
             message,

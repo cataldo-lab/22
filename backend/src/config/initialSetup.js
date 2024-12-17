@@ -15,14 +15,14 @@ async function createUsers() {
         const alumnoRepository = AppDataSource.getRepository(Alumno);
         const profesorRepository = AppDataSource.getRepository(Profesor);
 
-        // Check if users already exist
+        // Los usuarios estan ya creados
         const userCount = await userRepository.count();
         if (userCount > 0) {
             console.log("ℹ️ Usuarios ya existen en la base de datos. Se omite la creación inicial.");
             return;
         }
 
-        // Sample users
+        // Los usuarios de prueba
         const users = [
             {
                 rut: "11111111-1",
@@ -185,11 +185,11 @@ async function createCursos() {
           },
       ];
 
-      // Create courses and associate students
+      // Crear cursos y asignaturas
       for (const cursoData of cursos) {
           const newCurso = await cursoRepository.save(cursoRepository.create(cursoData));
 
-          // Assign a few students to the newly created course
+          // Crear pocos estudiantes para asignar a los cursos
           const alumnos = await alumnoRepository.find({
               where: { id_curso: null }, // Find students not already assigned to a course
               take: 5, // Assign up to 5 students per course
@@ -305,8 +305,8 @@ async function createAsignaturaAlumnos() {
       for (const relacion of relaciones) {
           const asignatura = asignaturas.find(a => a.id_asignatura === relacion.id_asignatura);
           if (asignatura) {
-              asignatura.alumnos = relacion.alumnos; // Asociar los alumnos
-              await asignaturaRepository.save(asignatura); // Guardar la relación
+              asignatura.alumnos = relacion.alumnos; 
+              await asignaturaRepository.save(asignatura); 
           }
       }
 
