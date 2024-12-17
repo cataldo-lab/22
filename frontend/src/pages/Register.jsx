@@ -5,7 +5,7 @@ import useRegister from '@hooks/auth/useRegister.jsx';
 import { showErrorAlert, showSuccessAlert } from '@helpers/sweetAlert.js';
 import '@styles/form.css';
 
-
+// Función para transformar el RUT
 const formatRutToPlain = (rut) => rut.replace(/\./g, ''); // Elimina los puntos del RUT
 
 const Register = () => {
@@ -22,7 +22,7 @@ const Register = () => {
             // Formatear el RUT antes de enviar los datos
             const formattedData = {
                 ...data,
-                rut: formatRutToPlain(data.rut), // rut
+                rut: formatRutToPlain(data.rut), // Aplica la transformación al campo 'rut'
                 rol: 'alumno',
             };
 

@@ -31,7 +31,7 @@ const router = createBrowserRouter([
         ),
     },
     {
-      path: '/notas', 
+      path: '/notas', // Nueva ruta para Notas
       element: (
         <ProtectedRoute allowedRoles={['alumno']}>
           <NotasPage />
@@ -40,7 +40,7 @@ const router = createBrowserRouter([
     },
     
     {
-      path: '/lista-alumnos', 
+      path: '/lista-alumnos', // Ruta para ListaAlumnoPage
       element: (
         <ProtectedRoute allowedRoles={['profesor']}>
           <ListaAlumnoPage />
