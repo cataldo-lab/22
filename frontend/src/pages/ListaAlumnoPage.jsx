@@ -6,11 +6,11 @@ import {
     patchCalificaciones,
     postCalificaciones,
 } from "@services/ListaAlumnos.service";
-import "@styles/listaAlumnos.css";
+import "@styles/ListaAlumnos.css";
 import Sidebar from "@components/Sidebar";
 import "@styles/home.css";
 import Swal from "sweetalert2";
-import "@styles/navBar.css"
+import "@styles/navbar.css"
 import "@styles/home.css";
 //import NavBar from "@components/NavBar";
 import { useForm } from "react-hook-form";
