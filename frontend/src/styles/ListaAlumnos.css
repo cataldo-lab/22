@@ -162,23 +162,7 @@
     background-color: #45a049; /* Color de fondo al pasar el cursor */
   }
 
-  .edit-icon {
-    width: 20px;
-    height: 20px;
-    background-image: url("@assets/edit.svg");
-    background-size: contain;
-    background-repeat: no-repeat;
-    cursor: pointer;
-}
-
-.delete-icon {
-    width: 20px;
-    height: 20px;
-    background-image: url("@assets/delete.svg");
-    background-size: contain;
-    background-repeat: no-repeat;
-    cursor: pointer;
-}
+ 
 
 
 
